@@ -3,5 +3,5 @@ package states;
 /**
  * Created by joakimnilfjord on 9/25/2017 AD.
  */
-public class StartingMenu extends State {
+public class State {
 }
