@@ -11,7 +11,6 @@ import java.util.Observable;
 public class GameStateManager extends Observable implements KeyListener {
     GameState gameState;
 
-
     public GameStateManager() {
         init();
     }

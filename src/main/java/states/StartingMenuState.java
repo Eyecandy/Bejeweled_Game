@@ -9,13 +9,39 @@ import java.awt.*;
  */
 public class StartingMenuState extends GameState {
     JPanel jPanel;
+    private final String title = "Start Menu";
+    private final Color titleColor = Color.GREEN;
+    private final Integer X = 475;
+    private final Integer Y = 75;
+    private final Integer W = 90;
+    private final Integer H = 90;
+    private String[] options = {
+            "Start Game",
+            "Help",
+            "Quit Game"}; // Menu Options
+
     public void init() {
         jPanel = new JPanel();
         JLabel jLabel = new JLabel();
-        jLabel.setText("START MENU");
+        jLabel.setText(title);
+        jLabel.setBounds(   X,Y,W,H);
+        jPanel.setLayout(null);
         jPanel.add(jLabel);
         jPanel.setVisible(true);
         jPanel.setBounds(100, 100, 1000, 1000);
+        jPanel.setBackground(Color.DARK_GRAY);
+        int deduct = 40;
+        for (int i =0;i < options.length;i++) {
+            JLabel jLabel1 = new JLabel();
+            jLabel1.setText(options[i]);
+            jLabel1.setBounds(X,Y+deduct,W,H);
+            deduct += 40;
+            jPanel.add(jLabel1);
+        }
+
+
+
+
     }
 
     public void setTitle(String title) {
@@ -27,7 +53,6 @@ public class StartingMenuState extends GameState {
     }
 
     public void draw(Graphics2D g) {
-
 
     }
 

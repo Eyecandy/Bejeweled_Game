@@ -21,10 +21,6 @@ public class Controller {
         gui.setjPanel(jPanel);
 
 
-
-
-
-
     }
 
 
