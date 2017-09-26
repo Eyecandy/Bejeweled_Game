@@ -1,3 +1,5 @@
+import states.GameStateManager;
+
 import javax.swing.*;
 
 /**
@@ -14,12 +16,12 @@ public class Controller {
         GameStateManager gameStateManager = new GameStateManager();
         JPanel jPanel =  gameStateManager.getGameState().getJpanel();
         jPanel.setVisible(true);
-        GUI gui = new GUI();
+        GUI gui = new GUI(gameStateManager);
         gui.setTitle("Bejeweled");
         gui.setVisible(true);
-        //gui.add(jPanel);
         gui.setjPanel(jPanel);
-
+        GameStateObserver gameStateObserver = new GameStateObserver(gameStateManager,gui);
+        gameStateManager.addObserver(gameStateObserver);
 
     }
 

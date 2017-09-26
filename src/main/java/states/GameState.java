@@ -7,13 +7,27 @@ import java.util.Observable;
  */
 
 
-public abstract class GameState {
+public abstract class GameState extends Observable {
+
+
+
+    private GameStateManager gameStateManager;
     public abstract void init();
     public abstract void update();
     public abstract void draw(java.awt.Graphics2D g);
     public abstract void keyReleased(int k);
     public abstract void keyPressed(int k);
     public abstract JPanel getJpanel();
+
+    public GameStateManager getGameStateManager() {
+        return gameStateManager;
+    }
+
+    public void setGameStateManager(GameStateManager gameStateManager) {
+        this.gameStateManager = gameStateManager;
+    }
+
+
 }
 
 
