@@ -6,7 +6,12 @@ import javax.swing.*;
 public class GUI extends JFrame {
 
     JPanel jPanel;
+
+
     public GUI() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 1000, 1000);
+
 
     }
 
@@ -16,6 +21,9 @@ public class GUI extends JFrame {
 
     public void setjPanel(JPanel jPanel) {
         this.jPanel = jPanel;
+        add(jPanel);
+        repaint();
+        doLayout();
     }
 
 
