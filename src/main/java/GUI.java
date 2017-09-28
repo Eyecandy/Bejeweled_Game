@@ -8,14 +8,12 @@ import javax.swing.*;
 public class GUI extends JFrame {
 
     JPanel jPanel;
-    GameStateManager gameStateManager;
 
 
-    public GUI(GameStateManager gameStateManager) {
+
+    public GUI() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 1000, 1000);
-        this.gameStateManager = gameStateManager;
-        addKeyListener(gameStateManager);
 
     }
 

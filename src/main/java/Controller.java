@@ -16,12 +16,14 @@ public class Controller {
         GameStateManager gameStateManager = new GameStateManager();
         JPanel jPanel =  gameStateManager.getGameState().getJpanel();
         jPanel.setVisible(true);
-        GUI gui = new GUI(gameStateManager);
+        GUI gui = new GUI();
         gui.setTitle("Bejeweled");
         gui.setVisible(true);
         gui.setjPanel(jPanel);
+        gui.addKeyListener(gameStateManager);
         GameStateObserver gameStateObserver = new GameStateObserver(gameStateManager,gui);
         gameStateManager.addObserver(gameStateObserver);
+
 
     }
 
