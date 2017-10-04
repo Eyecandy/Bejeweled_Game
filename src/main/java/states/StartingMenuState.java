@@ -1,9 +1,5 @@
 package states;
 
-import com.sun.java.swing.action.AlignCenterAction;
-import sun.jvm.hotspot.debugger.win32.coff.COFFLineNumber;
-import sun.lwawt.macosx.CPrinterGraphics;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -15,7 +11,6 @@ import java.awt.event.KeyEvent;
 public class StartingMenuState extends GameState {
     JPanel jPanel;
     private final String title = "Start Menu";
-    private final Color titleColor = Color.GREEN;
     Font titleFont = new Font("Script",Font.BOLD,55);
 
     private int currentSelect = 0;
@@ -27,16 +22,10 @@ public class StartingMenuState extends GameState {
     private Font normalFont = new Font("Script",Font.PLAIN,30);
     private Color normalColor = Color.black;
 
-
-
-
-
-
-
-    private final Integer X = 475;
-    private final Integer Y = 75;
-    private final Integer W = 300;
-    private final Integer H = 100;
+    private final Integer X = getXJlabelCord();
+    private final Integer Y = getYJlabelCord();
+    private final Integer W = getJlabelWidth();
+    private final Integer H = getJlabelHeight();
     private String[] options = {
             "Start Game",
             "Help",
@@ -44,7 +33,6 @@ public class StartingMenuState extends GameState {
     private JLabel[] optionsLabels = new JLabel[3];
 
     public void init() {
-
         jPanel = new JPanel();
         JLabel jLabel = new JLabel(title);
         jLabel.setBounds(X-70,Y,W+W,H);
@@ -53,10 +41,7 @@ public class StartingMenuState extends GameState {
         jPanel.add(jLabel);
         jPanel.setBounds(100, 100, 1000, 1000);
         jPanel.setBackground(backGroundColor);
-
         int deduct = 100;
-
-
         for (int i =0;i < options.length;i++) {
             JLabel jLabel1 = new JLabel();
             jLabel1.setFont(normalFont);
@@ -69,12 +54,6 @@ public class StartingMenuState extends GameState {
         }
         optionsLabels[currentSelect].setFont(selectedFont);
         optionsLabels[currentSelect].setForeground(selectedColor);
-
-
-    }
-
-    public void setTitle(String title) {
-
     }
 
     public void update() {
@@ -86,14 +65,6 @@ public class StartingMenuState extends GameState {
         optionsLabels[old].setForeground(normalColor);
         optionsLabels[currentSelect].setFont(selectedFont);
         optionsLabels[currentSelect].setForeground(selectedColor);
-
-    }
-
-    public void draw(Graphics2D g) {
-
-    }
-
-    public void keyReleased(int k) {
 
     }
 

@@ -8,26 +8,26 @@ import java.awt.*;
  */
 public class Level1State extends GameState {
     JPanel jPanel;
-    private final Integer X = 475;
-    private final Integer Y = 75;
-    private final Integer W = 300;
-    private final Integer H = 100;
-
+    private final Integer X = getXJlabelCord();
+    private final Integer Y = getYJlabelCord();
+    private final Integer W = getJlabelHeight();
+    private final Integer H = getJlabelWidth();
     private final String title = "LEVEL 1";
-    private final Color titleColor = Color.GREEN;
-    Font titleFont = new Font("Script",Font.BOLD,55);
+
+    Font titleFont = new Font("Script",Font.BOLD,23);
 
     public void init() {
-
         jPanel = new JPanel();
+        jPanel.setOpaque(true);
         JLabel jLabel = new JLabel(title);
-        jLabel.setBounds(X-70,Y,W+W,H);
+        jLabel.setBackground(Color.BLUE);
+        //jLabel.setBounds(100,100,300,200);
+        jLabel.setBounds(X-70,Y-100,W+W,H);
         jLabel.setFont(titleFont);
-        jPanel.setLayout(null);
-        jPanel.add(jLabel);
-        jPanel.setBackground(Color.RED);
+        jPanel.setLayout(new BorderLayout());
+        jPanel.add(jLabel, BorderLayout.CENTER);
         jPanel.setBounds(100, 100, 1000, 1000);
-
+        //jPanel.setBackground(Color.RED);
 
     }
 
@@ -35,13 +35,7 @@ public class Level1State extends GameState {
 
     }
 
-    public void draw(Graphics2D g) {
 
-    }
-
-    public void keyReleased(int k) {
-
-    }
 
     public void keyPressed(int k) {
 
