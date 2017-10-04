@@ -10,21 +10,8 @@ abstract public class Tile {
 
     private final TileColor COLOR;
 
-    private int xPos;
-    private int yPos;
-
-    Tile(TileColor color, int xPos, int yPos) {
+    Tile(TileColor color) {
         COLOR = color;
-        this.xPos = xPos;
-        this.yPos = yPos;
-    }
-
-    public int getyPos() {
-        return yPos;
-    }
-
-    public int getxPos() {
-        return xPos;
     }
 
     public TileColor getCOLOR() {

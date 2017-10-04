@@ -3,8 +3,8 @@ package tiles;
 /**
  * Created by joakimnilfjord on 9/25/2017 AD.
  */
-public class BombTile extends Tile {
-    public BombTile(TileColor color) {
+public class SimpleTile extends  Tile {
+    public SimpleTile(TileColor color) {
         super(color);
     }
 }
