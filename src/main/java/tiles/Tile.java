@@ -1,6 +1,5 @@
 package tiles;
 
-import javax.swing.*;
 
 abstract public class Tile {
 
