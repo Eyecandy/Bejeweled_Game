@@ -4,6 +4,7 @@ import panels.GamePanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 
 /**
  * Created by joakimnilfjord on 9/25/2017 AD.
@@ -21,6 +22,7 @@ public class Level1State extends GameState {
     private final String title = "LEVEL 1";
 
     public void init() {
+
         gamePanel = new GamePanel(background,titleFont);
         setXYWH(gamePanel.getX(),gamePanel.getY(),gamePanel.getHeight(),gamePanel.getWidth());
         JLabel titleLabel = createJlabel(title,titleFont,titleColor);
@@ -32,6 +34,10 @@ public class Level1State extends GameState {
     }
 
     public void keyPressed(int k) {
+        if (k == KeyEvent.VK_ESCAPE) {
+            getGameStateManager().setGameStateToStartingMenu();
+
+        }
     }
 
     public JPanel getJpanel() {

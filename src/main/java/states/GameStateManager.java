@@ -9,7 +9,9 @@ import java.util.Observable;
  * Created by joakimnilfjord on 9/25/2017 AD.
  */
 public class GameStateManager extends Observable implements KeyListener{
-    GameState gameState;
+    private GameState gameState;
+
+    private GameState startingMenuState;
 
 
 
@@ -20,6 +22,7 @@ public class GameStateManager extends Observable implements KeyListener{
     private void init() {
         StartingMenuState startingMenu = new StartingMenuState();
         startingMenu.init();
+        startingMenuState = startingMenu;
         startingMenu.setGameStateManager(this);
         setGameState(startingMenu);
     }
@@ -43,4 +46,17 @@ public class GameStateManager extends Observable implements KeyListener{
 
     public void keyReleased(KeyEvent e) {
     }
+
+    public void setGameStateToStartingMenu() {
+        System.out.println(startingMenuState);
+        this.gameState = startingMenuState;
+        setChanged();
+        notifyObservers();
+    }
+
+
+
+
+
+
 }
