@@ -4,7 +4,7 @@ import javax.swing.*;
 
 abstract public class Tile {
 
-    enum TileColor {
+    public enum TileColor {
         RED, PINK, GREEN, BLUE, PURPLE, YELLOW
     }
 
