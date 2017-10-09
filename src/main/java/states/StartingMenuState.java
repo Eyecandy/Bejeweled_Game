@@ -1,7 +1,6 @@
 package states;
 
 import panels.GamePanel;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -11,10 +10,7 @@ import java.awt.event.KeyEvent;
  * Created by joakimnilfjord on 9/25/2017 AD.
  */
 public class StartingMenuState extends GameState {
-    //JPanel jPanel;
     GamePanel gamePanel;
-
-
     private final String title = "Start Menu";
     Font titleFont = new Font("Script",Font.BOLD,55);
 
@@ -34,7 +30,6 @@ public class StartingMenuState extends GameState {
     private int width;
     private int height;
 
-
     private String[] options = {
             "Start Game",
             "Help",
@@ -42,27 +37,19 @@ public class StartingMenuState extends GameState {
     private JLabel[] optionsLabels = new JLabel[3];
 
 
-
     public void init() {
         gamePanel = new GamePanel(backGroundColor,titleFont);
         setXYWH(gamePanel.getX(),gamePanel.getY(),gamePanel.getHEIGHT(),gamePanel.getHEIGHT());
-
         JLabel titleLabel = createJlabel(title,titleFont,titleColor);
-        titleLabel.setBounds(xCord-70,yCord,width*3,height);
-        //jLabel.setFont(titleFont);
+        titleLabel.setBounds(xCord-70,yCord,width*4,height);
         gamePanel.add(titleLabel);
-
         int deduct = 100;
         for (int i =0;i < options.length;i++) {
-
-            JLabel jLabel1 = new JLabel();
-            jLabel1.setFont(normalFont);
-            jLabel1.setForeground(normalColor);
-            jLabel1.setText(options[i]);
-            jLabel1.setBounds(xCord,yCord+deduct,width*3,height);
+            JLabel optionLabel = createJlabel(options[i],normalFont,normalColor);
+            optionLabel.setBounds(xCord,yCord+deduct,width*3,height);
             deduct += 60;
-            gamePanel.add(jLabel1);
-            optionsLabels[i] = jLabel1;
+            gamePanel.add(optionLabel);
+            optionsLabels[i] = optionLabel;
         }
         optionsLabels[currentSelect].setFont(selectedFont);
         optionsLabels[currentSelect].setForeground(selectedColor);
@@ -100,28 +87,18 @@ public class StartingMenuState extends GameState {
             GameState gameState = new Level1State();
             gameState.init();
             getGameStateManager().setGameState(gameState);
-
-
         }
-
     }
 
     public JPanel getJpanel() {
         return gamePanel;
     }
 
-    private void setXYWH(int x,int y,int w,int h) {
+
+    public void setXYWH(int x,int y,int w,int h) {
         xCord = x; yCord=y; width = w; height = h;
     }
 
-    private JLabel createJlabel(String text,Font font,Color foreground) {
-        JLabel jLabel = new JLabel();
-        jLabel.setText(text);
-        jLabel.setFont(font);
-        jLabel.setForeground(foreground);
-        return jLabel;
 
-
-    }
 
 }

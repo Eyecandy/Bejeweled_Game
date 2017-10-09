@@ -1,5 +1,3 @@
-import states.GameStateManager;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -7,37 +5,27 @@ import java.awt.*;
  * Created by joakimnilfjord on 9/25/2017 AD.
  */
 public class GUI extends JFrame {
-
     JPanel jPanel;
+    private final int XCORD_FRAME = 100;
+    private final int YCORD_FRAME = 100;
+    private final int WIDTH_FRAME = 1000;
+    private final int HEIGHT_FRAME = 1000;
+
 
     public GUI() {
-
+        setTitle("Bejeweled");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 1000, 1000);
-       // setMinimumSize(new Dimension(1000,1000));
-        //setResizable(false);
-        setLayout(new BorderLayout());
-        //pack();
-    }
-
-    public JPanel getjPanel() {
-        return jPanel;
+        setBounds(XCORD_FRAME, YCORD_FRAME, WIDTH_FRAME, HEIGHT_FRAME);
+        setPreferredSize(new Dimension(1000,1000));
     }
 
 
     public void setjPanel(JPanel jPanel) {
         this.jPanel = jPanel;
-        add(jPanel,BorderLayout.CENTER);
+        setContentPane(jPanel);
+        pack();
+        setVisible(true);
         repaint();
         doLayout();
     }
-
-    public void removejPanel() {
-        jPanel.removeAll();
-        remove(jPanel);
-    }
-
-
-
-
 }

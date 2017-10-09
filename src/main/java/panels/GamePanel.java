@@ -1,7 +1,5 @@
 package panels;
 
-import javafx.scene.layout.Background;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -20,7 +18,6 @@ public class GamePanel extends JPanel {
         setLayout(null);
         setBackground(background);
         setFont(title);
-
     }
 
     public Integer getXCORD() {

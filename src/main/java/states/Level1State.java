@@ -1,5 +1,7 @@
 package states;
 
+import panels.GamePanel;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -7,44 +9,36 @@ import java.awt.*;
  * Created by joakimnilfjord on 9/25/2017 AD.
  */
 public class Level1State extends GameState {
-    JPanel jPanel;
-    private final Integer X = getXJlabelCord();
-    private final Integer Y = getYJlabelCord();
-    private final Integer W = getJlabelHeight();
-    private final Integer H = getJlabelWidth();
+    GamePanel gamePanel;
+    private Color background = Color.MAGENTA;
+    private Font titleFont = new Font("Script",Font.BOLD,23);
+    private Color titleColor = Color.BLACK;
+
+    private int xCord;
+    private int yCord;
+    private int width;
+    private int height;
     private final String title = "LEVEL 1";
 
-    Font titleFont = new Font("Script",Font.BOLD,23);
-
     public void init() {
-        jPanel = new JPanel();
-        jPanel.setOpaque(true);
-        JLabel jLabel = new JLabel(title);
-        jLabel.setBackground(Color.BLUE);
-        //jLabel.setBounds(100,100,300,200);
-        jLabel.setBounds(X-70,Y-100,W+W,H);
-        jLabel.setFont(titleFont);
-        jPanel.setLayout(new BorderLayout());
-        jPanel.add(jLabel, BorderLayout.CENTER);
-        jPanel.setBounds(100, 100, 1000, 1000);
-        //jPanel.setBackground(Color.RED);
-
+        gamePanel = new GamePanel(background,titleFont);
+        setXYWH(gamePanel.getX(),gamePanel.getY(),gamePanel.getHeight(),gamePanel.getWidth());
+        JLabel titleLabel = createJlabel(title,titleFont,titleColor);
+        titleLabel.setBounds(xCord-70,yCord-100,width*2,height);
+        gamePanel.add(titleLabel);
     }
-
     public void update() {
 
     }
 
-
-
     public void keyPressed(int k) {
-
     }
 
     public JPanel getJpanel() {
-        return jPanel;
+        return gamePanel;
     }
 
-
-
+    public void setXYWH(int x,int y,int w,int h) {
+        xCord = x; yCord=y; width = w; height = h;
+    }
 }

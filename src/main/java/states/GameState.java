@@ -1,5 +1,6 @@
 package states;
 import javax.swing.*;
+import java.awt.*;
 import java.util.Observable;
 
 /**
@@ -8,16 +9,13 @@ import java.util.Observable;
 public abstract class GameState extends Observable {
 
 
-    private final Integer jpanelXCord = 475;
-    private final Integer jpanelYCord = 75;
-    private final Integer width = 300;
-    private final Integer height = 100;
 
     private GameStateManager gameStateManager;
     public abstract void init();
     public abstract void update();
     public abstract void keyPressed(int k);
     public abstract JPanel getJpanel();
+    public abstract void setXYWH(int x,int y, int w,int h);
 
     public GameStateManager getGameStateManager() {
         return gameStateManager;
@@ -26,20 +24,14 @@ public abstract class GameState extends Observable {
     public void setGameStateManager(GameStateManager gameStateManager) {
         this.gameStateManager = gameStateManager;
     }
-    public Integer getXJlabelCord() {
-        return jpanelXCord;
-    }
 
-    public Integer getYJlabelCord() {
-        return jpanelYCord;
-    }
+    public JLabel createJlabel(String text, Font font, Color foreground) {
+        JLabel jLabel = new JLabel();
+        jLabel.setText(text);
+        jLabel.setFont(font);
+        jLabel.setForeground(foreground);
+        return jLabel;
 
-    public Integer getJlabelWidth() {
-        return width;
-    }
-
-    public Integer getJlabelHeight() {
-        return height;
     }
 
 

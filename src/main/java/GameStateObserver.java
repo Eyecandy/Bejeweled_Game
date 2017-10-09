@@ -15,7 +15,6 @@ public class GameStateObserver implements Observer {
     }
 
     public void update(Observable o, Object arg) {
-        gui.removejPanel();
         gui.setjPanel(gameStateManager.getGameState().getJpanel());
     }
 }
