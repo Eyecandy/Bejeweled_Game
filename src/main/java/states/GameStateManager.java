@@ -10,9 +10,6 @@ import java.util.Observable;
  */
 public class GameStateManager extends Observable implements KeyListener{
     GameState gameState;
-
-
-
     public GameStateManager() {
         init();
     }
@@ -40,7 +37,6 @@ public class GameStateManager extends Observable implements KeyListener{
     public void keyPressed(KeyEvent e) {
         gameState.keyPressed(e.getKeyCode());
     }
-
     public void keyReleased(KeyEvent e) {
     }
 }

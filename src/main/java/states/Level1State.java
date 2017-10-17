@@ -37,17 +37,16 @@ public class Level1State extends GameState {
 
         gl.init(8, 8);
         Tile mat[][] = gl.getBoard();
-        board.render(mat, 800);
-        board.setBounds(xCord-400,yCord, 800,800);
+        board.render(mat, 600);
+        board.setBounds(xCord-300,yCord, 600,600);
         gamePanel.add(board);
     }
     public void update() {
         System.out.println("update");
         gamePanel.updateUI();
-
         board.updateUI();
         gamePanel.remove(board);
-        board.setBounds(xCord-400,yCord, 800,800);
+        board.setBounds(xCord-300,yCord, 600,600);
         gamePanel.add(board);
     }
 
