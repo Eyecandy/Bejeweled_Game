@@ -4,6 +4,7 @@ import panels.GameBoard;
 import panels.GamePanel;
 import tiles.SimpleTile;
 import tiles.Tile;
+import tiles.TileColor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +18,7 @@ public class Level1State extends GameState {
     private Color background = Color.MAGENTA;
     private Font titleFont = new Font("Script",Font.BOLD,23);
     private Color titleColor = Color.BLACK;
+    public GameBoard board;
 
     private int xCord;
     private int yCord;
@@ -28,18 +30,27 @@ public class Level1State extends GameState {
 
         gamePanel = new GamePanel(background,titleFont);
         setXYWH(gamePanel.getX(),gamePanel.getY(),gamePanel.getHeight(),gamePanel.getWidth());
+        GameLogic gl = new GameLogic();
+
+        BoardObserver boardObserver = new BoardObserver(this,gl);
+        gl.addObserver(boardObserver);
         //JLabel titleLabel = createJlabel(title,titleFont,titleColor);
-        GameBoard board = new GameBoard();
-        Tile mat[][] = {
-                {new SimpleTile(Tile.TileColor.BLUE), new SimpleTile(Tile.TileColor.RED), new SimpleTile(Tile.TileColor.PINK)},
-                {new SimpleTile(Tile.TileColor.GREEN), new SimpleTile(Tile.TileColor.PURPLE), new SimpleTile(Tile.TileColor.YELLOW)},
-                {new SimpleTile(Tile.TileColor.PINK), new SimpleTile(Tile.TileColor.RED), new SimpleTile(Tile.TileColor.BLUE)}} ;
-        board.render(mat, 300);
-        board.setBounds(xCord-50,yCord-50, 300,300);
+        board = new GameBoard(gl);
+
+        gl.init(8, 8);
+        Tile mat[][] = gl.getBoard();
+        board.render(mat, 800);
+        board.setBounds(xCord-400,yCord, 800,800);
         gamePanel.add(board);
     }
     public void update() {
+        System.out.println("update");
+        gamePanel.updateUI();
 
+        board.updateUI();
+        gamePanel.remove(board);
+        board.setBounds(xCord-400,yCord, 800,800);
+        gamePanel.add(board);
     }
 
     public void keyPressed(int k) {

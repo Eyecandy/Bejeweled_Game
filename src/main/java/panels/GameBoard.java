@@ -1,26 +1,37 @@
 package panels;
 
+import states.GameLogic;
 import tiles.Tile;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 
 public class GameBoard extends JPanel {
-    public GameBoard() {
+    private final GameLogic gl;
+    public GameBoard(GameLogic gl) {
+        this.gl = gl;
         this.setLayout(null);
     }
 
     private int width = 0;
     private int height = 0;
     private int offset = 50;
+    private int boardWidth = 0;
+
+    public void render(Tile[][] matrix) {
+        System.out.println(boardWidth);
+        render(matrix, boardWidth);
+    }
 
     public void render(Tile[][] matrix, int width) {
         for (Component component : this.getComponents()) {
             this.remove(component);
         }
-
+        boardWidth = width;
         height = matrix.length;
         this.width = matrix[0].length;
         offset = width/this.width;
@@ -58,8 +69,19 @@ public class GameBoard extends JPanel {
                         label.setIcon(new ImageIcon(img.getScaledInstance(offset,offset,0)));
                 } catch (IOException e) {
                     e.printStackTrace();
-                    }
+                }
+                label.setName(i + "," + j);
                 label.setBounds(j*offset, i*offset, offset, offset);
+                label.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        String name = e.getComponent().getName();
+                        System.out.println(name);
+                        String[] str = name.split(",");
+                        gl.toClick(Integer.parseInt(str[0]),Integer.parseInt(str[1]));
+                        super.mouseClicked(e);
+                    }
+                });
                 this.add(label);
             }
         }
