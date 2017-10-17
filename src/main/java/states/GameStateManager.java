@@ -13,8 +13,6 @@ public class GameStateManager extends Observable implements KeyListener{
 
     private GameState startingMenuState;
 
-
-
     public GameStateManager() {
         init();
     }
@@ -43,7 +41,6 @@ public class GameStateManager extends Observable implements KeyListener{
     public void keyPressed(KeyEvent e) {
         gameState.keyPressed(e.getKeyCode());
     }
-
     public void keyReleased(KeyEvent e) {
     }
 
