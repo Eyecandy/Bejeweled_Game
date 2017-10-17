@@ -22,9 +22,24 @@ public class GameLogic extends Observable{
         if (clickStack.size() > 1) {
             Tuple t1 = clickStack.pop();
             Tuple t2 = clickStack.pop();
-            if (isSwappable(board.clone(), t1, t2)){
-                System.out.println("swap");
+            //System.out.println("brdaou");
+            //printBoard(board);
+            Tile [][] tmpbrd = new Tile[board.length][];
+            for(int k = 0; k < board.length; k++)
+            {
+                Tile[] aMatrix = board[k];
+                int  aLength = aMatrix.length;
+                tmpbrd[k] = new Tile[aLength];
+                System.arraycopy(aMatrix, 0, tmpbrd[k], 0, aLength);
+            }
+            if (isSwappable(tmpbrd, t1, t2)){
+                //System.out.println("swap");
+                //printBoard(board);
+                //System.out.println("beforeSwap ^");
+                //System.out.println("swapping     " + t1.toString() + " and " + t2.toString());
                 swap(t1, t2);
+                //System.out.println("new");
+                //printBoard(board);
             }
             clickStack.clear();
         }
@@ -33,18 +48,16 @@ public class GameLogic extends Observable{
 
     public void swap (Tuple t1, Tuple t2) {
 
-        System.out.println(t1 + "," + t2);
-
         int x1 = t1.x, x2 = t2.x, y1 = t1.y, y2 = t2.y;
-        Tile swap1 = board[x1][y1];
-        Tile swap2 = board[x2][y2];
-        board[x1][y1] = swap2;
-        board[x2][y2] = swap1;
+        Tile swap1 = board[y1][x1];
+        Tile swap2 = board[y2][x2];
+        board[y1][x1] = swap2;
+        board[y2][x2] = swap1;
 
         clearGroups(board);
 
         setChanged();
-        System.out.println("notified");
+        //System.out.println("notified");
         notifyObservers();
         //System.out.println("BOARD WITH NULL");
         //this.printBoard(board);
@@ -277,7 +290,7 @@ public class GameLogic extends Observable{
         Tile tmp = board[aY][aX];
         board[aY][aX] = board[bY][bX];
         board[bY][bX] = tmp;
-        printBoard(board);
+        //printBoard(board);
         int width = board[0].length, height = board.length;
         if (checkLimits(aX, aY, width, height) && checkLimits(bX, bY, width, height)) {
             if (aX == bX && Math.abs(aY - bY) == 1) {
@@ -285,7 +298,6 @@ public class GameLogic extends Observable{
                 TileColor currentColour = TileColor.YELLOW;
                 Tile currentTile;
                 int count = 1;
-                System.out.println("Vertical Col");
                 for (int i = 0; i < height; i++) {
                     System.out.println(aX + ", " + i);
                     if (i == 0) {
@@ -293,8 +305,8 @@ public class GameLogic extends Observable{
                         count = 1;
                     } else {
                         currentTile = board[i][aX];
-                        System.out.println(currentTile.getCOLOR());
-                        System.out.println(count);
+                        //System.out.println(currentTile.getCOLOR());
+                        //System.out.println(count);
                         if (currentTile.getCOLOR() == currentColour) {
                             count++;
                             if (count >= 3) {
@@ -306,18 +318,18 @@ public class GameLogic extends Observable{
                         }
                     }
                 }
-                System.out.println("Vert row");
+                //System.out.println("Vert row");
                 for (int j = Math.min(aY, bY); j <= Math.max(aY, bY); j++) {
-                    System.out.println("row " + j);
+                    //System.out.println("row " + j);
                     for (int i = 0; i < width; i++) {
-                        System.out.println(i + ", " + j);
+                        //System.out.println(i + ", " + j);
                         if (i == 0) {
                             currentColour = board[j][i].getCOLOR();
                             count = 1;
                         } else {
                             currentTile = board[j][i];
-                            System.out.println(currentTile.getCOLOR());
-                            System.out.println(count);
+                            //System.out.println(currentTile.getCOLOR());
+                            //System.out.println(count);
                             if (currentTile.getCOLOR() == currentColour) {
                                 count++;
                                 if (count >= 3) {
@@ -335,16 +347,16 @@ public class GameLogic extends Observable{
                 TileColor currentColour = TileColor.YELLOW;
                 Tile currentTile;
                 int count = 1;
-                System.out.println("Horizontal row");
+                //System.out.println("Horizontal row");
                 for (int i = 0; i < width; i++) {
-                    System.out.println(i + ", " + aY);
+                    //System.out.println(i + ", " + aY);
                     if (i == 0) {
                         currentColour = board[aY][i].getCOLOR();
                         count = 1;
                     } else {
                         currentTile = board[aY][i];
-                        System.out.println(currentTile.getCOLOR());
-                        System.out.println(count);
+                        //System.out.println(currentTile.getCOLOR());
+                        //System.out.println(count);
                         if (currentTile.getCOLOR() == currentColour) {
                             count++;
                             if (count >= 3) {
@@ -360,14 +372,14 @@ public class GameLogic extends Observable{
                 for (int j = Math.min(aX, bX); j <= Math.max(aX, bX); j++) {
                     System.out.println("col " + j);
                     for (int i = 0; i < height; i++) {
-                        System.out.println(j + ", " + i);
+                        //System.out.println(j + ", " + i);
                         if (i == 0) {
                             currentColour = board[i][j].getCOLOR();
                             count = 1;
                         } else {
                             currentTile = board[i][j];
-                            System.out.println(currentTile.getCOLOR());
-                            System.out.println(count);
+                            //System.out.println(currentTile.getCOLOR());
+                            //System.out.println(count);
                             if (currentTile.getCOLOR() == currentColour) {
                                 count++;
                                 if (count >= 3) {
@@ -382,7 +394,7 @@ public class GameLogic extends Observable{
                 }
             }
         }
-        System.out.println(false);
+        //System.out.println(false);
         return false;
     }
 
@@ -506,6 +518,7 @@ public class GameLogic extends Observable{
         Tile currentTile;
         //int counter = 0;
         do {
+            //printBoard(board);
             repeat = false;
             currentGroup.clear();
             toRemove.clear();
@@ -557,11 +570,11 @@ public class GameLogic extends Observable{
 
             }
 
-            System.out.println(toRemove);
+            //System.out.println(toRemove);
             remove(toRemove, board);
             slideDown(board);
             fillNull(board);
         } while (repeat);
-        printBoard(board);
+        //printBoard(board);
     }
 }
