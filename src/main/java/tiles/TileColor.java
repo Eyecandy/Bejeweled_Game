@@ -5,6 +5,6 @@ public enum TileColor {
 
     @Override
     public String toString() {
-        return name().toLowerCase();
+        return name().toLowerCase().substring(0,3);
     }
 }
