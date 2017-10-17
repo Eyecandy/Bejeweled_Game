@@ -22,7 +22,7 @@ public class GameLogic extends Observable{
         if (clickStack.size() > 1) {
             Tuple t1 = clickStack.pop();
             Tuple t2 = clickStack.pop();
-            if (this.isSwappable(board, t1.x, t1.y, t2.x, t2.y)) {
+            if (isSwappable(board.clone(), t1, t2)){
                 System.out.println("swap");
                 swap(t1, t2);
             }
@@ -32,51 +32,20 @@ public class GameLogic extends Observable{
     }
 
     public void swap (Tuple t1, Tuple t2) {
-        boolean changed = false;
+
         System.out.println(t1 + "," + t2);
+
         int x1 = t1.x, x2 = t2.x, y1 = t1.y, y2 = t2.y;
         Tile swap1 = board[x1][y1];
         Tile swap2 = board[x2][y2];
         board[x1][y1] = swap2;
         board[x2][y2] = swap1;
 
-        Set<Tuple> removable = new HashSet<>();
-        boolean removeH1 = this.isRemovableH(board,x1,y1,removable);
-        boolean removeV1 = this.isRemovableV(board,x1,y1,removable);
+        clearGroups(board);
 
-
-        if (!removeH1 && !removeV1) {// && !removeH2 && !removeV2
-            //board[x1][y1] = swap1;
-            //board[x2][y2] = swap2;
-
-            removable.clear();
-        } else {
-            this.remove(removable, board);
-            removable.clear();
-            this.slideDown(board);
-            this.fillNull(board);
-            changed = true;
-        }
-
-        boolean removeH2 = this.isRemovableH(board,x2,y2,removable);
-        boolean removeV2 = this.isRemovableV(board,x2,y2,removable);
-
-        if (!removeH2 && !removeV2) {
-            removable.clear();
-        } else {
-            this.remove(removable, board);
-            removable.clear();
-            this.slideDown(board);
-            this.fillNull(board);
-            changed = true;
-        }
-
-        if (changed) {
-            setChanged();
-
-            System.out.println("notified");
-            notifyObservers();
-        }
+        setChanged();
+        System.out.println("notified");
+        notifyObservers();
         //System.out.println("BOARD WITH NULL");
         //this.printBoard(board);
         //System.out.println("SLIDE DOWN");
@@ -197,7 +166,7 @@ public class GameLogic extends Observable{
 
     public static void main(String[] args) {
         GameLogic gameLogic = new GameLogic();
-        gameLogic.init(8,8);
+        gameLogic.init(10,8);
         Tile[][] board = gameLogic.getBoard();
         board[3][3] = gameLogic.newTile(0);
         board[3][4] = gameLogic.newTile(1);
@@ -210,41 +179,41 @@ public class GameLogic extends Observable{
         board[7][4] = gameLogic.newTile(0);
         System.out.println(board[0][0]);
         gameLogic.printBoard(board);
-        Set<Tuple> removable = new HashSet<Tuple>();
-        Tile swap1 = board[3][4];
-        Tile swap2 = board[2][4];
-        boolean canSwap = false;
-        if (gameLogic.isSwappable(board,2,4,3,4)){
-            swap1 = board[3][4];
-            swap2 = board[2][4];
-            canSwap = true;
-        }
-        System.out.println("SWAP ROW 2, COL 4 WITH ROW 3, COL 4");
-        System.out.println("AFTER");
-        if (canSwap){
-            board[3][4] = swap2;
-            board[2][4] = swap1;
-            boolean removeH1 = gameLogic.isRemovableH(board,3,4,removable);
-            boolean removeV1 = gameLogic.isRemovableV(board,3,4,removable);
-
-            if (!removeH1 && !removeV1){
-                board[3][4] = swap1;
-                board[2][4] = swap2;
-                removable.clear();
-            }else {
-                gameLogic.remove(removable,board);
-                removable.clear();
-            }
-            System.out.println("BOARD WITH NULL");
-            gameLogic.printBoard(board);
-            System.out.println("SLIDE DOWN");
-            gameLogic.slideDown(board);
-            gameLogic.printBoard(board);
-            System.out.println("FILL UP NULL TILES WITH RANDOM");
-            gameLogic.fillNull(board);
-            gameLogic.printBoard(board);
-
-        }
+//        Set<Tuple> removable = new HashSet<Tuple>();
+//        Tile swap1 = board[3][4];
+//        Tile swap2 = board[2][4];
+//        boolean canSwap = false;
+//        if (gameLogic.isSwappable(board,2,4,3,4)){
+//            swap1 = board[3][4];
+//            swap2 = board[2][4];
+//            canSwap = true;
+//        }
+//        System.out.println("SWAP ROW 2, COL 4 WITH ROW 3, COL 4");
+//        System.out.println("AFTER");
+//        if (canSwap){
+//            board[3][4] = swap2;
+//            board[2][4] = swap1;
+//            boolean removeH1 = gameLogic.isRemovableH(board,3,4,removable);
+//            boolean removeV1 = gameLogic.isRemovableV(board,3,4,removable);
+//
+//            if (!removeH1 && !removeV1){
+//                board[3][4] = swap1;
+//                board[2][4] = swap2;
+//                removable.clear();
+//            }else {
+//                gameLogic.remove(removable,board);
+//                removable.clear();
+//            }
+//            System.out.println("BOARD WITH NULL");
+//            gameLogic.printBoard(board);
+//            System.out.println("SLIDE DOWN");
+//            gameLogic.slideDown(board);
+//            gameLogic.printBoard(board);
+//            System.out.println("FILL UP NULL TILES WITH RANDOM");
+//            gameLogic.fillNull(board);
+//            gameLogic.printBoard(board);
+//        }
+        gameLogic.clearGroups(board);
     }
 
     //Creates new tile of a certain color
@@ -303,6 +272,123 @@ public class GameLogic extends Observable{
         return false;
     }
 
+    public boolean isSwappable(Tile[][] board, Tuple a, Tuple b) {
+        int aX = a.getX(), aY = a.getY(), bX = b.getX(), bY = b.getY();
+        Tile tmp = board[aY][aX];
+        board[aY][aX] = board[bY][bX];
+        board[bY][bX] = tmp;
+        printBoard(board);
+        int width = board[0].length, height = board.length;
+        if (checkLimits(aX, aY, width, height) && checkLimits(bX, bY, width, height)) {
+            if (aX == bX && Math.abs(aY - bY) == 1) {
+                // swapping vertically
+                TileColor currentColour = TileColor.YELLOW;
+                Tile currentTile;
+                int count = 1;
+                System.out.println("Vertical Col");
+                for (int i = 0; i < height; i++) {
+                    System.out.println(aX + ", " + i);
+                    if (i == 0) {
+                        currentColour = board[i][aX].getCOLOR();
+                        count = 1;
+                    } else {
+                        currentTile = board[i][aX];
+                        System.out.println(currentTile.getCOLOR());
+                        System.out.println(count);
+                        if (currentTile.getCOLOR() == currentColour) {
+                            count++;
+                            if (count >= 3) {
+                                return true;
+                            }
+                        } else {
+                            currentColour = currentTile.getCOLOR();
+                            count = 1;
+                        }
+                    }
+                }
+                System.out.println("Vert row");
+                for (int j = Math.min(aY, bY); j <= Math.max(aY, bY); j++) {
+                    System.out.println("row " + j);
+                    for (int i = 0; i < width; i++) {
+                        System.out.println(i + ", " + j);
+                        if (i == 0) {
+                            currentColour = board[j][i].getCOLOR();
+                            count = 1;
+                        } else {
+                            currentTile = board[j][i];
+                            System.out.println(currentTile.getCOLOR());
+                            System.out.println(count);
+                            if (currentTile.getCOLOR() == currentColour) {
+                                count++;
+                                if (count >= 3) {
+                                    return true;
+                                }
+                            } else {
+                                currentColour = currentTile.getCOLOR();
+                                count = 1;
+                            }
+                        }
+                    }
+                }
+            } else if (aY == bY && Math.abs(aX - bX) == 1) {
+                // swappinng horizontally
+                TileColor currentColour = TileColor.YELLOW;
+                Tile currentTile;
+                int count = 1;
+                System.out.println("Horizontal row");
+                for (int i = 0; i < width; i++) {
+                    System.out.println(i + ", " + aY);
+                    if (i == 0) {
+                        currentColour = board[aY][i].getCOLOR();
+                        count = 1;
+                    } else {
+                        currentTile = board[aY][i];
+                        System.out.println(currentTile.getCOLOR());
+                        System.out.println(count);
+                        if (currentTile.getCOLOR() == currentColour) {
+                            count++;
+                            if (count >= 3) {
+                                return true;
+                            }
+                        } else {
+                            currentColour = currentTile.getCOLOR();
+                            count = 1;
+                        }
+                    }
+                }
+                System.out.println("horz col");
+                for (int j = Math.min(aX, bX); j <= Math.max(aX, bX); j++) {
+                    System.out.println("col " + j);
+                    for (int i = 0; i < height; i++) {
+                        System.out.println(j + ", " + i);
+                        if (i == 0) {
+                            currentColour = board[i][j].getCOLOR();
+                            count = 1;
+                        } else {
+                            currentTile = board[i][j];
+                            System.out.println(currentTile.getCOLOR());
+                            System.out.println(count);
+                            if (currentTile.getCOLOR() == currentColour) {
+                                count++;
+                                if (count >= 3) {
+                                    return true;
+                                }
+                            } else {
+                                currentColour = currentTile.getCOLOR();
+                                count = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println(false);
+        return false;
+    }
+
+    private boolean checkLimits(int x, int y, int width, int height) {
+        return (x >= 0 && y >= 0 && x < width && y < height);
+    }
     //checks a tiles vertical neighbors to see if any can be removed
     // if it can be removed, boolean will be true and removable contains tiles to be removed
     // call this after checking if tile a,b is swappable
@@ -370,7 +456,7 @@ public class GameLogic extends Observable{
     //Set the tiles to be removed to null
     public void remove(Set<Tuple> removable, Tile[][] board){
         for (Tuple t : removable){
-            board[t.getX()][t.getY()] = null;
+            board[t.getY()][t.getX()] = null;
         }
     }
 
@@ -379,7 +465,7 @@ public class GameLogic extends Observable{
         int row = board.length;
         int column = board[0].length;
         int count;
-        ArrayList<Tile> temp = new ArrayList<Tile>();
+        ArrayList<Tile> temp = new ArrayList<>();
         for (int i=0;i < column;i++){
             for(int j=0; j < row; j++){
                 if (board[j][i] != null){
@@ -410,5 +496,72 @@ public class GameLogic extends Observable{
                 }
             }
         }
+    }
+
+    public void clearGroups(Tile[][] board){
+        boolean repeat;
+        TileColor currentColour = TileColor.YELLOW;
+        Set<Tuple> toRemove = new HashSet<>();
+        Set<Tuple> currentGroup = new HashSet<>();
+        Tile currentTile;
+        //int counter = 0;
+        do {
+            repeat = false;
+            currentGroup.clear();
+            toRemove.clear();
+            for (int i = 0; i < board[0].length; i++) {
+                for (int j = 0; j < board.length; j++) { // each row of column
+                    if (j == 0) {
+                        currentColour = board[j][i].getCOLOR();
+                        currentGroup.clear();
+                        currentGroup.add(new Tuple(i, j));
+                    } else {
+                        currentTile = board[j][i];
+                        if (currentTile.getCOLOR() == currentColour) {
+                            currentGroup.add(new Tuple(i, j));
+                            if (currentGroup.size() >= 3) {
+                                toRemove.addAll(currentGroup);
+                                repeat = true;
+                            }
+                        } else {
+                            currentColour = currentTile.getCOLOR();
+                            currentGroup.clear();
+                            currentGroup.add(new Tuple(i, j));
+                        }
+                    }
+
+                }
+            }
+            for (int j = 0; j < board.length; j++) {
+                for (int i = 0; i < board[0].length; i++) {
+                    if (i == 0) {
+                        currentColour = board[j][i].getCOLOR();
+                        currentGroup.clear();
+                        currentGroup.add(new Tuple(i, j));
+                    } else {
+                        currentTile = board[j][i];
+                        if (currentTile.getCOLOR() == currentColour) {
+                            currentGroup.add(new Tuple(i, j));
+                            if (currentGroup.size() >= 3) {
+                                toRemove.addAll(currentGroup);
+                                repeat = true;
+                            }
+                        } else {
+                            currentColour = currentTile.getCOLOR();
+                            currentGroup.clear();
+                            currentGroup.add(new Tuple(i, j));
+                        }
+                    }
+
+                }
+
+            }
+
+            System.out.println(toRemove);
+            remove(toRemove, board);
+            slideDown(board);
+            fillNull(board);
+        } while (repeat);
+        printBoard(board);
     }
 }
