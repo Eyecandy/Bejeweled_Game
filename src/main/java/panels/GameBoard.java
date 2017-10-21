@@ -100,7 +100,7 @@ public class GameBoard extends JPanel {
 
                         }
                         Tuple cord = labelToCord.get(e.getComponent());
-                        gl.toClick(cord.x,cord.y);
+                        gl.toClick(cord.getX(),cord.getY());
                         super.mouseClicked(e);
                     }
                     public void mouseReleased(MouseEvent e) {

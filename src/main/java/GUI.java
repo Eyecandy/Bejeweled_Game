@@ -13,7 +13,7 @@ public class GUI extends JFrame {
 
     public GUI() {
         setTitle("Bejeweled");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setBounds(XCORD_FRAME, YCORD_FRAME, WIDTH_FRAME, HEIGHT_FRAME);
         setPreferredSize(new Dimension(1000,1000));
     }
