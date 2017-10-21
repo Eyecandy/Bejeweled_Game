@@ -2,8 +2,8 @@ package tiles;
 
 public class Tuple {
 
-    public int x;
-    public int y;
+    private final int x;
+    private final int y;
 
     public Tuple(int x, int y){
         this.x = x;

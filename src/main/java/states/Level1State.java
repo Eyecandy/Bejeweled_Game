@@ -2,9 +2,7 @@ package states;
 
 import panels.GameBoard;
 import panels.GamePanel;
-import tiles.SimpleTile;
 import tiles.Tile;
-import tiles.TileColor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +12,7 @@ import java.awt.event.KeyEvent;
  * Created by joakimnilfjord on 9/25/2017 AD.
  */
 public class Level1State extends GameState {
-    GamePanel gamePanel;
+    private GamePanel gamePanel;
     private Color background = Color.MAGENTA;
     private Font titleFont = new Font("Script",Font.BOLD,23);
     private Color titleColor = Color.BLACK;
@@ -30,14 +28,13 @@ public class Level1State extends GameState {
 
         gamePanel = new GamePanel(background,titleFont);
         setXYWH(gamePanel.getX(),gamePanel.getY(),gamePanel.getHeight(),gamePanel.getWidth());
-        GameLogic gl = new GameLogic();
+        GameLogic gl = new GameLogic(4,4);
 
         BoardObserver boardObserver = new BoardObserver(this,gl);
         gl.addObserver(boardObserver);
         //JLabel titleLabel = createJlabel(title,titleFont,titleColor);
         board = new GameBoard(gl);
 
-        gl.init(8, 8);
         Tile mat[][] = gl.getBoard();
         board.render(mat, 600);
         board.setBounds(xCord-300,yCord, 600,600);

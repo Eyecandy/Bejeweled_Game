@@ -9,44 +9,103 @@ import java.util.*;
 
 public class GameLogic extends Observable{
 
+    private Tile[][] board;
+    private final int WIDTH;
+    private final int HEIGHT;
+    private Tuple previousClick = null;
+
+    GameLogic(int rows, int columns) {
+        this.HEIGHT = rows;
+        this.WIDTH = columns;
+        this.board = new Tile[HEIGHT][WIDTH];
+
+
+        int countX;
+        int countY;
+        Tile excludeX = newTile(0);
+        Tile excludeY = newTile(0);
+        Set<Integer> exclude = new HashSet<>();
+        for(int i = HEIGHT-1;i >= 0;i--){
+            for(int j=0;j < WIDTH;j++){
+                //Horizontal
+                countX = 0;
+                for(int k=j-1; k >= 0; k--){
+                    if (k == (j-1)){
+                        excludeX = board[i][k];
+                    }else {
+                        if (excludeX.compareColor(board[i][k])){
+                            countX++;
+                        }else {
+                            break;
+                        }
+                    }
+                }
+                //Vertical
+                countY = 0;
+                for (int l=i+1; l < HEIGHT;l++){
+                    if(l == (i+1)){
+                        excludeY = board[l][j];
+                    }else{
+                        if (excludeY.compareColor(board[l][j])){
+                            countY++;
+                        }else {
+                            break;
+                        }
+                    }
+                }
+                if (countX > 0){ exclude.add(excludeX.getColorIndex()); }
+                if (countY > 0){ exclude.add(excludeY.getColorIndex()); }
+                board[i][j] = newTile(getRandomWithExclusion(exclude));
+                exclude.clear();
+            }
+        }
+    }
+
     public Tile[][] getBoard() {
         return board;
     }
 
-    private Tile[][] board;
-    private Stack<Tuple> clickStack= new Stack<>();
-
     public void toClick(int i, int j) {
         System.out.println("click");
-        clickStack.add(new Tuple(i, j));
-        if (clickStack.size() > 1) {
-            Tuple t1 = clickStack.pop();
-            Tuple t2 = clickStack.pop();
-            Tile [][] tmpBoard = new Tile[board.length][];
-            for(int k = 0; k < board.length; k++)
-            {
-                Tile[] aMatrix = board[k];
-                int  aLength = aMatrix.length;
-                tmpBoard[k] = new Tile[aLength];
-                System.arraycopy(aMatrix, 0, tmpBoard[k], 0, aLength);
-            }
-            if (isSwappable(tmpBoard, t1, t2)){
-                swap(t1, t2);
-            }
-            clickStack.clear();
-        }
+        Tuple click = new Tuple(i, j);
+        if (previousClick == null)
+            previousClick = click;
+        else if (isNeighbours(previousClick, click)) {
+            if (isSwappable(previousClick, click))
+                swap(previousClick, click);
+            previousClick = null;
+        } else
+            previousClick = click;
+
+        if (!isPlayable())
+            System.out.println("GameOver");
 
     }
 
-    private void swap(Tuple t1, Tuple t2) {
+    /**
+     * Copy the board to test operations on such as checking if tiles are swappable
+     *
+     * @return a copy deep copy of the board
+     */
+    private Tile[][] copyBoard() {
+        Tile [][] boardCopy = new Tile[HEIGHT][];
+        for(int k = 0; k < WIDTH; k++)
+        {
+            Tile[] boardRow = board[k];
+            boardCopy[k] = new Tile[WIDTH];
+            System.arraycopy(boardRow, 0, boardCopy[k], 0, WIDTH);
+        }
+        return boardCopy;
+    }
 
-        int x1 = t1.x, x2 = t2.x, y1 = t1.y, y2 = t2.y;
+    private void swap(Tuple t1, Tuple t2) {
+        int x1 = t1.getX(), x2 = t2.getX(), y1 = t1.getY(), y2 = t2.getY();
         Tile swap1 = board[y1][x1];
         Tile swap2 = board[y2][x2];
         board[y1][x1] = swap2;
         board[y2][x2] = swap1;
 
-        clearGroups(board);
+        clearGroups();
 
         setChanged();
         notifyObservers();
@@ -71,52 +130,8 @@ public class GameLogic extends Observable{
         return random;
     }
 
-    //initializes board
-    public void init(int row, int column){
-        board = new Tile[row][column];
-        int countX;
-        int countY;
-        Tile excludeX = newTile(0);
-        Tile excludeY = newTile(0);
-        Set<Integer> exclude = new HashSet<>();
-        for(int i = row-1;i >= 0;i--){
-            for(int j=0;j < column;j++){
-                //Horizontal
-                countX = 0;
-                for(int k=j-1; k >= 0; k--){
-                    if (k == (j-1)){
-                        excludeX = board[i][k];
-                    }else {
-                        if (excludeX.compareColor(board[i][k])){
-                            countX++;
-                        }else {
-                            break;
-                        }
-                    }
-                }
-                //Vertical
-                countY = 0;
-                for (int l=i+1; l < row;l++){
-                    if(l == (i+1)){
-                        excludeY = board[l][j];
-                    }else{
-                        if (excludeY.compareColor(board[l][j])){
-                            countY++;
-                        }else {
-                            break;
-                        }
-                    }
-                }
-                if (countX > 0){ exclude.add(excludeX.getColorIndex()); }
-                if (countY > 0){ exclude.add(excludeY.getColorIndex()); }
-                board[i][j] = newTile(getRandomWithExclusion(exclude));
-                exclude.clear();
-            }
-        }
-    }
 
-
-    //Creates new tile of a certain color
+    // SimpleTileFactory method
     private Tile newTile(int index){
         switch (index){
             case 0:
@@ -134,12 +149,22 @@ public class GameLogic extends Observable{
         }
     }
 
-    //prints board
+    /**
+     * Prints the board for debugging purposes
+     */
+    private void printBoard(){
+        printBoard(this.board);
+    }
+
+    /**
+     * Prints a particular board for debugging purposes
+     * @param board a board to print
+     */
     private void printBoard(Tile[][] board){
         for (Tile[] aBoard : board) {
             for (int j = 0; j < board[0].length; j++) {
                 if (aBoard[j] == null) {
-                    System.out.print("NULL | ");
+                    System.out.print("NUL | ");
                 } else {
                     System.out.print(aBoard[j].getCOLOR().toString() + " | ");
                 }
@@ -149,37 +174,57 @@ public class GameLogic extends Observable{
         }
     }
 
-    private boolean isSwappable(Tile[][] board, Tuple a, Tuple b) {
+    /**
+     *
+     * @param a tile coordinate
+     * @param b tile coordinate
+     * @return true if swapping a and b results in a group of tiles to destroy
+     */
+    private boolean isSwappable(Tuple a, Tuple b) {
+        if (!checkLimits(a) || !checkLimits(b))
+            return false;
+
+        Tile[][] boardCopy = copyBoard();
         int aX = a.getX(), aY = a.getY(), bX = b.getX(), bY = b.getY();
-        Tile tmp = board[aY][aX];
-        board[aY][aX] = board[bY][bX];
-        board[bY][bX] = tmp;
-        //printBoard(board);
-        int width = board[0].length, height = board.length;
-        if (checkLimits(aX, aY, width, height) && checkLimits(bX, bY, width, height)) {
-            if (aX == bX && Math.abs(aY - bY) == 1) {
-                // swapping vertically
-                if (columnGroups(board, aX, height).size() > 0)
+        Tile tmp = boardCopy[aY][aX];
+        boardCopy[aY][aX] = boardCopy[bY][bX];
+        boardCopy[bY][bX] = tmp;
+        if (isVerticalNeighbour(a, b)) {
+            // swapping vertically
+            if (columnGroups(boardCopy, aX).size() > 0)
+                return true;
+            for (int j = Math.min(aY, bY); j <= Math.max(aY, bY); j++) {
+                if (rowGroups(boardCopy, j).size() > 0)
                     return true;
-                for (int j = Math.min(aY, bY); j <= Math.max(aY, bY); j++) {
-                    if (rowGroups(board, j, width).size() > 0)
-                        return true;
-                }
-            } else if (aY == bY && Math.abs(aX - bX) == 1) {
-                // swapping horizontally
-                if (rowGroups(board, aY, width).size() > 0)
+            }
+        } else if (isHorizontalNeighbour(a, b)) {
+            // swapping horizontally
+            if (rowGroups(boardCopy, aY).size() > 0)
+                return true;
+            for (int j = Math.min(aX, bX); j <= Math.max(aX, bX); j++) {
+                if (columnGroups(boardCopy, j).size() > 0)
                     return true;
-                for (int j = Math.min(aX, bX); j <= Math.max(aX, bX); j++) {
-                    if (columnGroups(board, j, height).size() > 0)
-                        return true;
-                }
             }
         }
-        //System.out.println(false);
         return false;
     }
 
-    private Set<Tuple> columnGroups(Tile[][] board, final int X, final int HEIGHT) {
+    /**
+     *
+     * @param X the coordinate of the column
+     * @return the coordinates of tiles to be removed in a column X
+     */
+    private Set<Tuple> columnGroups(final int X) {
+        return columnGroups(this.board, X);
+    }
+
+    /**
+     *
+     * @param board the tile matrix to check for groups
+     * @param X the coordinate of the column
+     * @return the coordinates of tiles to be removed in a column X
+     */
+    private Set<Tuple> columnGroups(final Tile[][] board, final int X) {
         Set<Tuple> currentGroup = new HashSet<>();
         Set<Tuple> toRemove = new HashSet<>();
 
@@ -200,7 +245,22 @@ public class GameLogic extends Observable{
         return toRemove;
     }
 
-    private Set<Tuple> rowGroups(Tile[][] board, final int Y, final int WIDTH) {
+    /**
+     *
+     * @param Y the coordinate of the row
+     * @return the coordinates of tiles to be removed in a row Y
+     */
+    private Set<Tuple> rowGroups(final int Y) {
+        return rowGroups(this.board, Y);
+    }
+
+    /**
+     *
+     * @param board the tile matrix to check for groups
+     * @param Y the coordinate of the row
+     * @return the coordinates of tiles to be removed in a row Y
+     */
+    private Set<Tuple> rowGroups(final Tile[][] board, final int Y) {
         Set<Tuple> currentGroup = new HashSet<>();
         Set<Tuple> toRemove = new HashSet<>();
 
@@ -222,19 +282,58 @@ public class GameLogic extends Observable{
         return toRemove;
     }
 
-    private boolean checkLimits(int x, int y, int width, int height) {
-        return (x >= 0 && y >= 0 && x < width && y < height);
+    /**
+     * Checks if two coordinates are adjacent the vertically direction
+     * @param a tile coordinate
+     * @param b tile coordinate
+     * @return whether two coordinates are next to each other vertically
+     */
+    private boolean isVerticalNeighbour(Tuple a, Tuple b) {
+        int aX = a.getX(), bX = b.getX(), aY = a.getY(), bY = b.getY();
+        return ((checkLimits(a) && checkLimits(b)) &&
+                (aX == bX && Math.abs(aY - bY) == 1));
+    }
+
+    /**
+     * Checks if two coordinates are adjacent the horizontally direction
+     * @param a tile coordinate
+     * @param b tile coordinate
+     * @return whether two coordinates are next to each other horizontally
+     */
+    private boolean isHorizontalNeighbour(Tuple a, Tuple b) {
+        int aX = a.getX(), bX = b.getX(), aY = a.getY(), bY = b.getY();
+        return ((checkLimits(a) && checkLimits(b)) &&
+                (aY == bY && Math.abs(aX - bX) == 1));
+    }
+
+    /**
+     * Checks if two coordinates are adjacent to each other
+     * @param a tile coordinate
+     * @param b tile coordinate
+     * @return whether two coordinates are adjacent to each other
+     */
+    private boolean isNeighbours(Tuple a, Tuple b) {
+        return (isVerticalNeighbour(a, b) || isHorizontalNeighbour(a, b));
+    }
+
+    /**
+     * @param t tile coordinate
+     * @return true if coordinate falls within board dimensions
+     */
+    private boolean checkLimits(Tuple t) {
+        int x = t.getX(), y = t.getY();
+        return (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT);
     }
 
     //Set the tiles to be removed to null
-    private void remove(Set<Tuple> removable, Tile[][] board){
+    private void remove(Set<Tuple> removable){
         for (Tuple t : removable){
             board[t.getY()][t.getX()] = null;
         }
     }
 
     //Slide the board down to remove all removables
-    private void slideDown(Tile[][] board){
+    private void slideDown(){
         int row = board.length;
         int column = board[0].length;
         int count;
@@ -259,7 +358,7 @@ public class GameLogic extends Observable{
     }
 
     //fill in the null entries with new random entries
-    private void fillNull(Tile[][] board){
+    private void fillNull(){
         for(int i=0;i < board[0].length;i++){
             for (int j=0; j < board.length;j++){
                 if (board[j][i] == null){
@@ -271,25 +370,34 @@ public class GameLogic extends Observable{
         }
     }
 
-    private void clearGroups(Tile[][] board){
+    private boolean isPlayable() {
+        for (int i = 0; i < HEIGHT; i++) {
+            for (int j = 0; j < WIDTH; j++) {
+                if (isSwappable(new Tuple(j,i), new Tuple(j + 1, i)))
+                    return true;
+                if (isSwappable(new Tuple(j, i), new Tuple(j, i + 1)))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Clears all groups in the board until no more groups exist
+     */
+    private void clearGroups(){
         Set<Tuple> toRemove = new HashSet<>();
-
-        int width = board[0].length, height = board.length;
-
         do {
             toRemove.clear();
-            for (int i = 0; i < width; i++) {
-                toRemove.addAll(columnGroups(board, i, height));
+            for (int i = 0; i < WIDTH; i++) {
+                toRemove.addAll(columnGroups(i));
             }
-            for (int j = 0; j < height; j++) {
-                toRemove.addAll(rowGroups(board, j, width));
+            for (int j = 0; j < HEIGHT; j++) {
+                toRemove.addAll(rowGroups(j));
             }
-            printBoard(board);
-            System.out.println(toRemove);
-            remove(toRemove, board);
-            slideDown(board);
-            fillNull(board);
+            remove(toRemove);
+            slideDown();
+            fillNull();
         } while (toRemove.size() != 0);
-        //printBoard(board);
     }
 }

@@ -7,18 +7,24 @@ abstract public class Tile {
     private final TileColor COLOR;
     private int colorIndex;
 
-    public Tile(TileColor color) {
+    Tile(TileColor color) {
         COLOR = color;
-        if (COLOR==TileColor.BLUE){
-            colorIndex = 0;
-        } else if(COLOR==TileColor.RED){
-            colorIndex = 1;
-        }else if(COLOR==TileColor.GREEN){
-            colorIndex = 2;
-        }else if(COLOR==TileColor.PINK){
-            colorIndex = 3;
-        }else if(COLOR==TileColor.YELLOW){
-            colorIndex = 4;
+        switch (COLOR) {
+            case BLUE:
+                colorIndex = 0;
+                break;
+            case RED:
+                colorIndex = 1;
+                break;
+            case GREEN:
+                colorIndex = 2;
+                break;
+            case PINK:
+                colorIndex = 3;
+                break;
+            case YELLOW:
+                colorIndex = 4;
+                break;
         }
     }
 
@@ -29,7 +35,7 @@ abstract public class Tile {
         return COLOR;
     }
 
-    public String getColorString(){
+    private String getColorString(){
         return COLOR.toString().toLowerCase();
     }
 

@@ -10,9 +10,9 @@ public class Controller {
         Controller controller = new Controller();
         controller.start();
     }
-    public void start() {
+    private void start() {
 
-        Animation animation = new Animation();
+        //Animation animation = new Animation();
         GameStateManager gameStateManager = new GameStateManager();
         JPanel jPanel =  gameStateManager.getGameState().getJpanel();
         jPanel.setVisible(true);
