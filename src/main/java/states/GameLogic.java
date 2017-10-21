@@ -113,20 +113,17 @@ public class GameLogic extends Observable{
 
     private Random rnd = new Random();
 
-    //Returns random int 0 to 4 (inclusive)
+    //Returns random int 0 to 5 (inclusive)
     private int getRandom(){
-        return rnd.nextInt(5);
+        return rnd.nextInt(6);
     }
 
     //Gets random except for the numbers in Set argument
     private int getRandomWithExclusion(Set<Integer> exclude) {
-        int random = rnd.nextInt(4);
-        for (int ex : exclude) {
-            if (random < ex) {
-                break;
-            }
-            random++;
-        }
+        int random;
+        do
+            random = rnd.nextInt(6);
+        while (exclude.contains(random));
         return random;
     }
 
@@ -145,7 +142,7 @@ public class GameLogic extends Observable{
             case 4:
                 return new SimpleTile(TileColor.YELLOW);
             default:
-                return new SimpleTile(TileColor.YELLOW);
+                return new SimpleTile(TileColor.PURPLE);
         }
     }
 

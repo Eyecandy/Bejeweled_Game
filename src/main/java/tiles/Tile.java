@@ -25,6 +25,9 @@ abstract public class Tile {
             case YELLOW:
                 colorIndex = 4;
                 break;
+            case PURPLE:
+                colorIndex = 5;
+                break;
         }
     }
 
