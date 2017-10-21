@@ -8,7 +8,6 @@ import java.util.Observable;
  */
 public abstract class GameState extends Observable {
 
-
     private GameStateManager gameStateManager;
     public abstract void init();
     public abstract void update();
@@ -30,10 +29,7 @@ public abstract class GameState extends Observable {
         jLabel.setFont(font);
         jLabel.setForeground(foreground);
         return jLabel;
-
     }
-
-
 }
 
 
