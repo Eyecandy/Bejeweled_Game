@@ -22,9 +22,9 @@ public class GameLogic extends Observable{
 
         int countX;
         int countY;
-        Tile excludeX = newTile(0);
-        Tile excludeY = newTile(0);
-        Set<Integer> exclude = new HashSet<>();
+        Tile excludeX = new SimpleTile(getRandomColour());
+        Tile excludeY = new SimpleTile(getRandomColour());
+        Set<TileColor> exclude = new HashSet<>();
         for(int i = HEIGHT-1;i >= 0;i--){
             for(int j=0;j < WIDTH;j++){
                 //Horizontal
@@ -53,9 +53,9 @@ public class GameLogic extends Observable{
                         }
                     }
                 }
-                if (countX > 0){ exclude.add(excludeX.getColorIndex()); }
-                if (countY > 0){ exclude.add(excludeY.getColorIndex()); }
-                board[i][j] = newTile(getRandomWithExclusion(exclude));
+                if (countX > 0){ exclude.add(excludeX.getCOLOR()); }
+                if (countY > 0){ exclude.add(excludeY.getCOLOR()); }
+                board[i][j] = new SimpleTile(getRandomWithExclusion(exclude));
                 exclude.clear();
             }
         }
@@ -114,36 +114,17 @@ public class GameLogic extends Observable{
     private Random rnd = new Random();
 
     //Returns random int 0 to 5 (inclusive)
-    private int getRandom(){
-        return rnd.nextInt(6);
+    private TileColor getRandomColour(){
+        return TileColor.colourList.get(rnd.nextInt(6));
     }
 
     //Gets random except for the numbers in Set argument
-    private int getRandomWithExclusion(Set<Integer> exclude) {
-        int random;
+    private TileColor getRandomWithExclusion(Set<TileColor> exclude) {
+        TileColor random;
         do
-            random = rnd.nextInt(6);
+            random = getRandomColour();
         while (exclude.contains(random));
         return random;
-    }
-
-
-    // SimpleTileFactory method
-    private Tile newTile(int index){
-        switch (index){
-            case 0:
-                return new SimpleTile(TileColor.BLUE);
-            case 1:
-                return new SimpleTile(TileColor.RED);
-            case 2:
-                return new SimpleTile(TileColor.GREEN);
-            case 3:
-                return new SimpleTile(TileColor.PINK);
-            case 4:
-                return new SimpleTile(TileColor.YELLOW);
-            default:
-                return new SimpleTile(TileColor.PURPLE);
-        }
     }
 
     /**
@@ -359,7 +340,7 @@ public class GameLogic extends Observable{
         for(int i=0;i < board[0].length;i++){
             for (int j=0; j < board.length;j++){
                 if (board[j][i] == null){
-                    board[j][i] = newTile(getRandom());
+                    board[j][i] = new SimpleTile(getRandomColour());
                 }else {
                     break;
                 }
