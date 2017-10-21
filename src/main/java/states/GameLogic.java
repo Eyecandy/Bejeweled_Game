@@ -25,40 +25,46 @@ public class GameLogic extends Observable{
         Tile excludeX = new SimpleTile(getRandomColour());
         Tile excludeY = new SimpleTile(getRandomColour());
         Set<TileColor> exclude = new HashSet<>();
-        for(int i = HEIGHT-1;i >= 0;i--){
-            for(int j=0;j < WIDTH;j++){
-                //Horizontal
-                countX = 0;
-                for(int k=j-1; k >= 0; k--){
-                    if (k == (j-1)){
-                        excludeX = board[i][k];
-                    }else {
-                        if (excludeX.compareColor(board[i][k])){
-                            countX++;
-                        }else {
-                            break;
+        do {
+            for (int i = HEIGHT - 1; i >= 0; i--) {
+                for (int j = 0; j < WIDTH; j++) {
+                    //Horizontal
+                    countX = 0;
+                    for (int k = j - 1; k >= 0; k--) {
+                        if (k == (j - 1)) {
+                            excludeX = board[i][k];
+                        } else {
+                            if (excludeX.compareColor(board[i][k])) {
+                                countX++;
+                            } else {
+                                break;
+                            }
                         }
                     }
-                }
-                //Vertical
-                countY = 0;
-                for (int l=i+1; l < HEIGHT;l++){
-                    if(l == (i+1)){
-                        excludeY = board[l][j];
-                    }else{
-                        if (excludeY.compareColor(board[l][j])){
-                            countY++;
-                        }else {
-                            break;
+                    //Vertical
+                    countY = 0;
+                    for (int l = i + 1; l < HEIGHT; l++) {
+                        if (l == (i + 1)) {
+                            excludeY = board[l][j];
+                        } else {
+                            if (excludeY.compareColor(board[l][j])) {
+                                countY++;
+                            } else {
+                                break;
+                            }
                         }
                     }
+                    if (countX > 0) {
+                        exclude.add(excludeX.getCOLOR());
+                    }
+                    if (countY > 0) {
+                        exclude.add(excludeY.getCOLOR());
+                    }
+                    board[i][j] = new SimpleTile(getRandomWithExclusion(exclude));
+                    exclude.clear();
                 }
-                if (countX > 0){ exclude.add(excludeX.getCOLOR()); }
-                if (countY > 0){ exclude.add(excludeY.getCOLOR()); }
-                board[i][j] = new SimpleTile(getRandomWithExclusion(exclude));
-                exclude.clear();
             }
-        }
+        } while (!isPlayable());
     }
 
     public Tile[][] getBoard() {
