@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 
 
+
 /**
  * Created by joakimnilfjord on 9/25/2017 AD.
  */
@@ -24,6 +25,9 @@ public class StartingMenuState extends GameState {
 
     private Font normalFont = new Font("Script",Font.PLAIN,30);
     private Color normalColor = Color.black;
+    private final int START_GAME= 0;
+    private final int OPTIONS= 1;
+    private final int QUIT = 2;
 
     private int xCord;
     private int yCord;
@@ -81,14 +85,21 @@ public class StartingMenuState extends GameState {
                 currentSelect -=1;
                 updateJlabelOptions(old);
             }
-
         }
-        else if (k == KeyEvent.VK_ENTER && currentSelect == 0) {
+        else if (k == KeyEvent.VK_ENTER && currentSelect == START_GAME) {
             GameState gameState = new Level1State();
             gameState.init();
+            gameState.setGameStateManager(getGameStateManager());
             getGameStateManager().setGameState(gameState);
         }
+
+        else if (k == KeyEvent.VK_ENTER && currentSelect == QUIT) {
+            System.exit(0);
+
+        }
     }
+
+
 
     public JPanel getJpanel() {
         return gamePanel;
