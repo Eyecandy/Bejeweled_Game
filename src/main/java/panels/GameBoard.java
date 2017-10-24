@@ -17,6 +17,7 @@ import java.util.Set;
 
 public class GameBoard extends JPanel {
     private Map<JLabel, Tuple> labelToCord = new HashMap<>();
+    private Map<Tuple, JLabel> cordToLabel = new HashMap<>();
     private Set<JLabel> jLabelsClicked = new HashSet<>();
     private final GameLogic gl;
     public GameBoard(GameLogic gl) {
@@ -27,6 +28,7 @@ public class GameBoard extends JPanel {
     private int height = 0;
     private int offset = 50;
     private int boardWidth = 0;
+    public SwingWorker<Void,Void>[][] labelWorkers;
 
     public void render(Tile[][] matrix) {
         System.out.println(boardWidth);
@@ -40,6 +42,7 @@ public class GameBoard extends JPanel {
         height = matrix.length;
         this.width = matrix[0].length;
         offset = width/this.width;
+        labelWorkers = new SwingWorker[height][this.width];
         System.out.println(width);
         System.out.println(this.width);
         System.out.println(offset);
@@ -48,7 +51,21 @@ public class GameBoard extends JPanel {
             for (int j = 0; j < this.width; j++) {
                 JLabel label = new JLabel(Integer.toString(i + j*height));
                 label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
+                labelWorkers[i][j] = new SwingWorker<Void, Void>() {
+                    int current = 100;
+                    JLabel curLbl = label;
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        for(int i=0;i<20;i++){
+                            Thread.sleep(100);
+                            current = current - 5;
+                            curLbl.setBounds(label.getX(),label.getY(),current,current);
+                            System.out.println("YOOOO");
+                        }
+                        return null;
+                    }
+                };
+//                labelWorkers[i][j].execute();
                 Image img = null;
                 try {
                     switch (matrix[i][j].getCOLOR()){
@@ -78,6 +95,7 @@ public class GameBoard extends JPanel {
                 }
                 Tuple cord = new Tuple(j,i);
                 labelToCord.put(label,cord);
+                cordToLabel.put(cord,label);
                 label.setBounds(j*offset, i*offset, offset, offset);
                 label.addMouseListener(new MouseAdapter() {
                     public void mouseEntered(MouseEvent e) {
@@ -101,6 +119,12 @@ public class GameBoard extends JPanel {
                         }
                         Tuple cord = labelToCord.get(e.getComponent());
                         gl.toClick(cord.getX(),cord.getY());
+                        Set<Tuple> tup = gl.getAnimateRemove();
+                        for (Tuple t : tup){
+                            labelWorkers[t.getY()][t.getX()].execute();
+                        }
+//                        gl.myNotifyObserver();
+
                         super.mouseClicked(e);
                     }
                     public void mouseReleased(MouseEvent e) {
@@ -114,8 +138,7 @@ public class GameBoard extends JPanel {
                             jLabelsClicked = new HashSet<>();
 
                         }
-
-                        }
+                    }
 
                 });
 

@@ -14,6 +14,12 @@ public class GameLogic extends Observable{
     private final int HEIGHT;
     private Tuple previousClick = null;
 
+    public Set<Tuple> getAnimateRemove() {
+        return animateRemove;
+    }
+
+    private Set<Tuple> animateRemove = new HashSet<>();
+
     GameLogic(int rows, int columns) {
         this.HEIGHT = rows;
         this.WIDTH = columns;
@@ -88,6 +94,11 @@ public class GameLogic extends Observable{
 
     }
 
+    public void myNotifyObserver(){
+        setChanged();
+        notifyObservers();
+    }
+
     /**
      * Copy the board to test operations on such as checking if tiles are swappable
      *
@@ -112,9 +123,6 @@ public class GameLogic extends Observable{
         board[y2][x2] = swap1;
 
         clearGroups();
-
-        setChanged();
-        notifyObservers();
     }
 
     private Random rnd = new Random();
@@ -371,17 +379,26 @@ public class GameLogic extends Observable{
      */
     private void clearGroups(){
         Set<Tuple> toRemove = new HashSet<>();
+        int count = 0;
         do {
             toRemove.clear();
             for (int i = 0; i < WIDTH; i++) {
+                if (count==0) animateRemove.addAll(columnGroups(i));
                 toRemove.addAll(columnGroups(i));
             }
             for (int j = 0; j < HEIGHT; j++) {
+                if (count==0) animateRemove.addAll(rowGroups(j));
                 toRemove.addAll(rowGroups(j));
             }
+            count++;
+            setChanged();
+            notifyObservers(0);
             remove(toRemove);
+
             slideDown();
             fillNull();
         } while (toRemove.size() != 0);
+        setChanged();
+        notifyObservers(1);
     }
 }
