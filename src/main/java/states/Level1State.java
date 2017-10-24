@@ -28,7 +28,7 @@ public class Level1State extends GameState {
 
         gamePanel = new GamePanel(background,titleFont);
         setXYWH(gamePanel.getX(),gamePanel.getY(),gamePanel.getHeight(),gamePanel.getWidth());
-        GameLogic gl = new GameLogic(4,4);
+        GameLogic gl = new GameLogic(6,6);
 
         BoardObserver boardObserver = new BoardObserver(this,gl);
         gl.addObserver(boardObserver);
