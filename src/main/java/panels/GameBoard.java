@@ -49,32 +49,9 @@ public class GameBoard extends JPanel {
                 JLabel label = new JLabel(Integer.toString(i + j*height));
                 label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-                Image img = null;
-                try {
-                    switch (matrix[i][j].getCOLOR()){
-                        case RED:
-                            img = ImageIO.read(getClass().getResource("/gem-Red.png"));
-                            break;
-                        case BLUE:
-                            img = ImageIO.read(getClass().getResource("/gem-Blue.png"));
-                            break;
-                        case PINK:
-                            img = ImageIO.read(getClass().getResource("/gem-Pink.png"));
-                            break;
-                        case GREEN:
-                            img = ImageIO.read(getClass().getResource("/gem-Green.png"));
-                            break;
-                        case PURPLE:
-                            img = ImageIO.read(getClass().getResource("/gem-Purple.png"));
-                            break;
-                        case YELLOW:
-                            img = ImageIO.read(getClass().getResource("/gem-Yellow.png"));
-                            break;
-                    }
-                    if (img != null)
-                        label.setIcon(new ImageIcon(img.getScaledInstance(offset,offset,0)));
-                } catch (IOException e) {
-                    e.printStackTrace();
+                ImageIcon img = getTileIcon(matrix[i][j], offset);
+                if (img != null) {
+                    label.setIcon(img);
                 }
                 Tuple cord = new Tuple(j,i);
                 labelToCord.put(label,cord);
@@ -122,6 +99,50 @@ public class GameBoard extends JPanel {
                 this.add(label);
             }
         }
+    }
+
+    private ImageIcon getTileIcon(Tile tile, int size) {
+        Image img = null;
+        String iconName = "/gem-";
+        String iconSuffix = ".png";
+        switch (tile.getCOLOR()){
+            case RED:
+                iconName += "Red";
+                break;
+            case BLUE:
+                iconName += "Blue";
+                break;
+            case PINK:
+                iconName += "Pink";
+                break;
+            case GREEN:
+                iconName += "Green";
+                break;
+            case PURPLE:
+                iconName += "Purple";
+                break;
+            case YELLOW:
+                iconName += "Yellow";
+        }
+        switch (tile.getTYPE()) {
+            case SIMPLE:
+                iconName += iconSuffix;
+                break;
+            case BOMB:
+                iconName += "-Bomb" + iconSuffix;
+                break;
+            case BOMB_VERTICAL:
+                iconName += "-Vert" + iconSuffix;
+                break;
+            case BOMB_HORIZONTAL:
+                iconName += "-Horz" + iconSuffix;
+        }
+        try {
+            img = ImageIO.read(getClass().getResource(iconName));
+        } catch (IOException e) {
+            return null;
+        }
+        return new ImageIcon(img.getScaledInstance(size,size,0));
     }
 
     private void jLabel1MouseEntered(JLabel jLabel1)

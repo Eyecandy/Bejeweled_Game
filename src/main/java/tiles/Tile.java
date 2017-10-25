@@ -4,41 +4,22 @@ package tiles;
 abstract public class Tile {
 
     private final TileColor COLOR;
-    private int colorIndex;
+    private final TileType TYPE;
 
-    Tile(TileColor color) {
+    Tile(TileColor color, TileType type) {
         COLOR = color;
-        switch (COLOR) {
-            case BLUE:
-                colorIndex = 0;
-                break;
-            case RED:
-                colorIndex = 1;
-                break;
-            case GREEN:
-                colorIndex = 2;
-                break;
-            case PINK:
-                colorIndex = 3;
-                break;
-            case YELLOW:
-                colorIndex = 4;
-                break;
-        }
+        TYPE = type;
     }
 
-    public int getColorIndex(){
-        return colorIndex;
-    }
     public TileColor getCOLOR() {
         return COLOR;
     }
 
-    private String getColorString(){
-        return COLOR.toString().toLowerCase();
+    public TileType getTYPE() {
+        return TYPE;
     }
 
     public boolean compareColor(Tile tile){
-        return this.getColorString().equals(tile.getColorString());
+        return COLOR.equals(tile.getCOLOR());
     }
 }
