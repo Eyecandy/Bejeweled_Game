@@ -1,5 +1,7 @@
 package states;
 
+import Events.DestroyEvent;
+import Events.EventBus;
 import tiles.*;
 
 import java.util.*;
@@ -11,6 +13,7 @@ public class GameLogic extends Observable{
     private final int HEIGHT;
     private Tuple previousClick = null;
     private TileFactory tileFactory;
+    private EventBus eventBus;
 
     GameLogic(int rows, int columns) {
         super();
@@ -18,6 +21,7 @@ public class GameLogic extends Observable{
         this.WIDTH = columns;
         this.board = new Tile[HEIGHT][WIDTH];
         this.tileFactory = new TileFactory();
+        this.eventBus = EventBus.getInstance();
 
 
         int countX;
@@ -368,6 +372,11 @@ public class GameLogic extends Observable{
      * @param removable set of tile coordinates
      */
     private void remove(Set<Tuple> removable){
+        try {
+            eventBus.publish(new DestroyEvent(removable));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         for (Tuple t : removable){
             board[t.getY()][t.getX()] = null;
         }
@@ -434,6 +443,7 @@ public class GameLogic extends Observable{
         Set<Tuple> toRemove = new HashSet<>();
         for (int x = 0; x < WIDTH; x++) {
             Tuple currentLocation = new Tuple(x, Y);
+            toRemove.add(currentLocation);
             removed.addAll(toRemove);
             if (!removed.contains(currentLocation))
                 toRemove.addAll(tilesToRemove(currentLocation, removed));
@@ -444,8 +454,9 @@ public class GameLogic extends Observable{
     private Set<Tuple> clearColumn(final int X, Set<Tuple> removed) {
         Set<Tuple> toRemove = new HashSet<>();
         for (int y = 0; y < HEIGHT; y++) {
-            removed.addAll(toRemove);
             Tuple currentLocation = new Tuple(X, y);
+            toRemove.add(currentLocation);
+            removed.addAll(toRemove);
             if (!removed.contains(currentLocation))
                 toRemove.addAll(tilesToRemove(currentLocation, removed));
         }
@@ -460,6 +471,7 @@ public class GameLogic extends Observable{
             for (int j = x - 1; j <= x + 1; j++) {
                 Tuple currentLocation = new Tuple(j, i);
                 if (checkLimits(currentLocation)) {
+                    toRemove.add(currentLocation);
                     removed.addAll(toRemove);
                     if (!removed.contains(currentLocation))
                         toRemove.addAll(tilesToRemove(currentLocation, removed));

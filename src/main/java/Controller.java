@@ -1,3 +1,4 @@
+import panels.GUI;
 import states.GameStateManager;
 
 import javax.swing.*;
@@ -14,9 +15,9 @@ public class Controller {
 
         //Animation animation = new Animation();
         GameStateManager gameStateManager = new GameStateManager();
-        JPanel jPanel =  gameStateManager.getGameState().getJpanel();
+        JPanel jPanel =  gameStateManager.getGameState().getJPanel();
         jPanel.setVisible(true);
-        GUI gui = new GUI();
+        GUI gui = GUI.getInstance();
         gui.setjPanel(jPanel);
         gui.addKeyListener(gameStateManager);
         GameStateObserver gameStateObserver = new GameStateObserver(gameStateManager,gui);

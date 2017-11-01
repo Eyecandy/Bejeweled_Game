@@ -101,7 +101,7 @@ public class StartingMenuState extends GameState {
 
 
 
-    public JPanel getJpanel() {
+    public JPanel getJPanel() {
         return gamePanel;
     }
 

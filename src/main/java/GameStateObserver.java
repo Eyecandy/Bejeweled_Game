@@ -1,3 +1,4 @@
+import panels.GUI;
 import states.GameStateManager;
 
 import java.util.Observable;
@@ -15,6 +16,6 @@ public class GameStateObserver implements Observer {
     }
 
     public void update(Observable o, Object arg) {
-        gui.setjPanel(gameStateManager.getGameState().getJpanel());
+        gui.setjPanel(gameStateManager.getGameState().getJPanel());
     }
 }

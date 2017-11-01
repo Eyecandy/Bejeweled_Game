@@ -12,8 +12,7 @@ public abstract class GameState extends Observable {
     public abstract void init();
     public abstract void update();
     public abstract void keyPressed(int k);
-    public abstract JPanel getJpanel();
-    public abstract void setXYWH(int x,int y, int w,int h);
+    public abstract JPanel getJPanel();
 
     public GameStateManager getGameStateManager() {
         return gameStateManager;

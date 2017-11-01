@@ -1,3 +1,5 @@
+package panels;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -11,7 +13,13 @@ public class GUI extends JFrame {
     private final int WIDTH_FRAME = 1000;
     private final int HEIGHT_FRAME = 1000;
 
-    public GUI() {
+    private static final GUI INSTANCE = new GUI();
+
+    public static GUI getInstance() {
+        return INSTANCE;
+    }
+
+    private GUI() {
         setTitle("Bejeweled");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setBounds(XCORD_FRAME, YCORD_FRAME, WIDTH_FRAME, HEIGHT_FRAME);

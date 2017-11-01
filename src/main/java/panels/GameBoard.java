@@ -1,6 +1,10 @@
 package panels;
 
+import Events.EventBus;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import states.GameLogic;
+import states.Level1State;
 import tiles.Tile;
 import tiles.Tuple;
 
@@ -15,47 +19,76 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class GameBoard extends JPanel {
+public class GameBoard extends JPanel implements Observable{
     private Map<JLabel, Tuple> labelToCord = new HashMap<>();
+    private Map<Tuple, JLabel> cordToLabel = new HashMap<>();
     private Set<JLabel> jLabelsClicked = new HashSet<>();
     private final GameLogic gl;
-    public GameBoard(GameLogic gl) {
+    private final int BOARD_SIZE;
+    private final int BOARD_DIMENSION;
+    private final int OFFSET;
+    private EventBus eventBus;
+    private Level1State level;
+    public GameBoard(GameLogic gl, int size, int dimensions, Level1State level) {
         this.gl = gl;
+        BOARD_SIZE = size;
+        BOARD_DIMENSION = dimensions;
+        OFFSET = BOARD_DIMENSION/BOARD_SIZE;
+        this.setMaximumSize(new Dimension(BOARD_DIMENSION, BOARD_DIMENSION));
+        this.setBounds(200, 150, BOARD_DIMENSION, BOARD_DIMENSION);
         this.setLayout(null);
+        eventBus = EventBus.getInstance();
+        eventBus.attachGameBoard(this);
+        this.level = level;
     }
-    private int width = 0;
-    private int height = 0;
-    private int offset = 50;
-    private int boardWidth = 0;
 
-    public void render(Tile[][] matrix) {
-        System.out.println(boardWidth);
-        render(matrix, boardWidth);
+    public void renderBoard() {
+        renderBoard(cordToLabel);
     }
-    public void render(Tile[][] matrix, int width) {
+
+    public void renderBoard(Map<Tuple, JLabel> labels) {
         for (Component component : this.getComponents()) {
             this.remove(component);
+            this.revalidate();
+            GUI.getInstance().repaint();
         }
-        boardWidth = width;
-        height = matrix.length;
-        this.width = matrix[0].length;
-        offset = width/this.width;
-        System.out.println(width);
-        System.out.println(this.width);
-        System.out.println(offset);
+        System.out.println("----");
+        for (Tuple t: labels.keySet()) {
+            System.out.println(labels.get(t).getBounds().height);
+            this.add(labels.get(t));
+            this.revalidate();
+            this.getParent().revalidate();
+            this.getParent().repaint();
+            GUI.getInstance().repaint();
+        }
+//        this.revalidate();
+//        this.repaint();
+//        this.updateUI();
+//        this.getParent().revalidate();
+//        this.getParent().repaint();
+//        level.update();
+        //this.dr
+        System.out.println("rendered");
+    }
 
-        for (int i = 0; i < height; ++i) {
-            for (int j = 0; j < this.width; j++) {
-                JLabel label = new JLabel(Integer.toString(i + j*height));
+    public void calcLabelPositions(Tile[][] matrix) {
+        labelToCord.clear();
+        cordToLabel.clear();
+        for (int i = 0; i < BOARD_SIZE; ++i) {
+            for (int j = 0; j < BOARD_SIZE; ++j) {
+                JLabel label = new JLabel();
+                label.setBackground(Color.LIGHT_GRAY);
+
                 label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-                ImageIcon img = getTileIcon(matrix[i][j], offset);
+                ImageIcon img = getTileIcon(matrix[i][j], OFFSET);
                 if (img != null) {
                     label.setIcon(img);
                 }
                 Tuple cord = new Tuple(j,i);
+                cordToLabel.put(cord, label);
                 labelToCord.put(label,cord);
-                label.setBounds(j*offset, i*offset, offset, offset);
+                label.setBounds(j*OFFSET, i*OFFSET, OFFSET, OFFSET);
                 label.addMouseListener(new MouseAdapter() {
                     public void mouseEntered(MouseEvent e) {
                         if (!jLabelsClicked.contains(label)) {
@@ -76,7 +109,7 @@ public class GameBoard extends JPanel {
                             jLabel1MouseExited(label);
 
                         }
-                        Tuple cord = labelToCord.get(e.getComponent());
+                        Tuple cord = labelToCord.get((JLabel) e.getComponent());
                         gl.toClick(cord.getX(),cord.getY());
                         super.mouseClicked(e);
                     }
@@ -84,25 +117,89 @@ public class GameBoard extends JPanel {
                         if (jLabelsClicked.size() == 1) {
                             jLabel1MouseExited(label);
                             for( JLabel label1:jLabelsClicked) {
-                                 label1.setOpaque(false);
-                                 label1.setBackground(Color.WHITE);
-
+                                label1.setOpaque(false);
+                                label1.setBackground(Color.WHITE);
                             }
                             jLabelsClicked = new HashSet<>();
-
                         }
-
-                        }
-
+                    }
                 });
-
-                this.add(label);
             }
         }
     }
 
+
+    public void render(Tile[][] matrix) {
+        calcLabelPositions(matrix);
+        renderBoard(cordToLabel);
+//        labelToCord.clear();
+//        cordToLabel.clear();
+//        for (Component component : this.getComponents()) {
+//            this.remove(component);
+//        }
+//
+//        for (int i = 0; i < BOARD_SIZE; ++i) {
+//            for (int j = 0; j < BOARD_SIZE; j++) {
+//                JLabel label = new JLabel();
+//                label.setBackground(Color.LIGHT_GRAY);
+//                label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+//
+//                ImageIcon img = getTileIcon(matrix[i][j], OFFSET);
+//                if (img != null) {
+//                    label.setIcon(img);
+//                }
+//                Tuple cord = new Tuple(j,i);
+//                cordToLabel.put(cord, label);
+//                labelToCord.put(label,cord);
+//                label.setBounds(j*OFFSET, i*OFFSET, OFFSET, OFFSET);
+//                label.addMouseListener(new MouseAdapter() {
+//                    public void mouseEntered(MouseEvent e) {
+//                        if (!jLabelsClicked.contains(label)) {
+//                            jLabel1MouseEntered(label);
+//                        }
+//                    }
+//                    public void mouseExited(MouseEvent e) {
+//                        if (!jLabelsClicked.contains(label)) {
+//                            jLabel1MouseExited(label);
+//                        }
+//                    }
+//                    @Override
+//                    public void mouseClicked(MouseEvent e) {
+//                        jLabelsClicked.add(label);
+//
+//                        jLabel1MouseClicked(label);
+//                        if (jLabelsClicked.size() == 2) {
+//                            jLabel1MouseExited(label);
+//
+//                        }
+//                        Tuple cord = labelToCord.get((JLabel) e.getComponent());
+//                        gl.toClick(cord.getX(),cord.getY());
+//                        super.mouseClicked(e);
+//                    }
+//                    public void mouseReleased(MouseEvent e) {
+//                        if (jLabelsClicked.size() == 1) {
+//                            jLabel1MouseExited(label);
+//                            for( JLabel label1:jLabelsClicked) {
+//                                 label1.setOpaque(false);
+//                                 label1.setBackground(Color.WHITE);
+//                            }
+//                            jLabelsClicked = new HashSet<>();
+//                        }
+//                    }
+//                });
+//                this.add(label);
+//            }
+//        }
+
+//        System.out.println("bus");
+//        eventBus.subscribe(cordToLabel);
+//        System.out.println("send");
+//        eventBus.publish(new DestroyEvent(cordToLabel.keySet()));
+//        System.out.println("event");
+    }
+
     private ImageIcon getTileIcon(Tile tile, int size) {
-        Image img = null;
+        Image img;
         String iconName = "/gem-";
         String iconSuffix = ".png";
         switch (tile.getCOLOR()){
@@ -142,7 +239,7 @@ public class GameBoard extends JPanel {
         } catch (IOException e) {
             return null;
         }
-        return new ImageIcon(img.getScaledInstance(size,size,0));
+        return new ImageIcon(img.getScaledInstance(size,size,1));
     }
 
     private void jLabel1MouseEntered(JLabel jLabel1)
@@ -162,4 +259,29 @@ public class GameBoard extends JPanel {
         jLabel1.setBackground(Color.BLACK);
     }
 
+    public Map<Tuple, JLabel> getCordToLabel() {
+        return cordToLabel;
+    }
+
+    public void setCordToLabel(Map<Tuple, JLabel> cordToLabel) {
+        this.cordToLabel = cordToLabel;
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
+    }
+
+    public int getOFFSET() {
+        return OFFSET;
+    }
+
+    @Override
+    public void addListener(InvalidationListener invalidationListener) {
+
+    }
+
+    @Override
+    public void removeListener(InvalidationListener invalidationListener) {
+
+    }
 }

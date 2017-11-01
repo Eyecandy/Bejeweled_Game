@@ -13,39 +13,33 @@ import java.awt.event.KeyEvent;
  */
 public class Level1State extends GameState {
     private GamePanel gamePanel;
-    private Color background = Color.MAGENTA;
+    private Color background = Color.LIGHT_GRAY;
     private Font titleFont = new Font("Script",Font.BOLD,23);
     private Color titleColor = Color.BLACK;
     public GameBoard board;
-
-    private int xCord;
-    private int yCord;
-    private int width;
-    private int height;
     private final String title = "LEVEL 1";
+
+    private final int SIZE = 8;
+    private final int DIMENSION = 600;
 
     public void init() {
 
         gamePanel = new GamePanel(background,titleFont);
-        setXYWH(gamePanel.getX(),gamePanel.getY(),gamePanel.getHeight(),gamePanel.getWidth());
-        GameLogic gl = new GameLogic(8,8);
+        GameLogic gl = new GameLogic(SIZE,SIZE);
 
         BoardObserver boardObserver = new BoardObserver(this,gl);
         gl.addObserver(boardObserver);
-        //JLabel titleLabel = createJlabel(title,titleFont,titleColor);
-        board = new GameBoard(gl);
+        board = new GameBoard(gl, SIZE, DIMENSION, this);
 
         Tile mat[][] = gl.getBoard();
-        board.render(mat, 600);
-        board.setBounds(xCord-300,yCord, 600,600);
         gamePanel.add(board);
+        board.render(mat);
     }
     public void update() {
         System.out.println("update");
         gamePanel.updateUI();
         board.updateUI();
         gamePanel.remove(board);
-        board.setBounds(xCord-300,yCord, 600,600);
         gamePanel.add(board);
     }
 
@@ -56,11 +50,7 @@ public class Level1State extends GameState {
         }
     }
 
-    public JPanel getJpanel() {
+    public JPanel getJPanel() {
         return gamePanel;
-    }
-
-    public void setXYWH(int x,int y,int w,int h) {
-        xCord = x; yCord=y; width = w; height = h;
     }
 }
