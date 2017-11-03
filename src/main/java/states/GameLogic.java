@@ -2,28 +2,40 @@ package states;
 
 import Events.DestroyEvent;
 import Events.EventBus;
+import panels.Board;
 import tiles.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Observable;
+import java.util.Set;
+
+import static tiles.TileColor.getRandomColour;
+import static tiles.TileColor.getRandomColourExcluding;
 
 public class GameLogic extends Observable{
 
-    private Tile[][] board;
+    private final Board BOARD;
     private final int WIDTH;
     private final int HEIGHT;
     private Tuple previousClick = null;
     private TileFactory tileFactory;
     private EventBus eventBus;
 
-    GameLogic(int rows, int columns) {
+    GameLogic(int rows, int columns, Board BOARD) {
         super();
         this.HEIGHT = rows;
         this.WIDTH = columns;
-        this.board = new Tile[HEIGHT][WIDTH];
         this.tileFactory = new TileFactory();
         this.eventBus = EventBus.getInstance();
+        this.BOARD = BOARD;
 
 
+        InitialiseBoard(this.WIDTH, this.HEIGHT);
+    }
+
+    private void InitialiseBoard(final int WIDTH, final int HEIGHT) {
+        Tile[][] tmpBoard = new Tile[HEIGHT][WIDTH];
         int countX;
         int countY;
         Tile excludeX = tileFactory.createTile(getRandomColour());
@@ -36,9 +48,9 @@ public class GameLogic extends Observable{
                     countX = 0;
                     for (int k = j - 1; k >= 0; k--) {
                         if (k == (j - 1)) {
-                            excludeX = board[i][k];
+                            excludeX = tmpBoard[i][k];
                         } else {
-                            if (excludeX.compareColor(board[i][k])) {
+                            if (excludeX.compareColor(tmpBoard[i][k])) {
                                 countX++;
                             } else {
                                 break;
@@ -49,9 +61,9 @@ public class GameLogic extends Observable{
                     countY = 0;
                     for (int l = i + 1; l < HEIGHT; l++) {
                         if (l == (i + 1)) {
-                            excludeY = board[l][j];
+                            excludeY = tmpBoard[l][j];
                         } else {
-                            if (excludeY.compareColor(board[l][j])) {
+                            if (excludeY.compareColor(tmpBoard[l][j])) {
                                 countY++;
                             } else {
                                 break;
@@ -64,48 +76,34 @@ public class GameLogic extends Observable{
                     if (countY > 0) {
                         exclude.add(excludeY.getCOLOR());
                     }
-                    board[i][j] = tileFactory.createTile(getRandomColourExcluding(exclude));
+                    Tile newTile = tileFactory.createTile(getRandomColourExcluding(exclude));
+                    tmpBoard[i][j] = newTile;
+                    BOARD.setTile(j, i, newTile);
                     exclude.clear();
                 }
             }
         } while (isNotPlayable());
     }
 
-    public Tile[][] getBoard() {
-        return board;
-    }
-
-    public void toClick(int i, int j) {
+    public void toClick(int x, int y) {
         System.out.println("click");
-        Tuple click = new Tuple(i, j);
+        Tuple click = new Tuple(x, y);
+        BOARD.addSelected(click);
         if (previousClick == null)
             previousClick = click;
         else if (isNeighbours(previousClick, click)) {
             if (isSwappable(previousClick, click))
                 swap(previousClick, click);
             previousClick = null;
-        } else
+            BOARD.clearSelected();
+        } else {
             previousClick = click;
+            BOARD.popSelected();
+        }
 
         if (isNotPlayable())
             System.out.println("GameOver");
 
-    }
-
-    /**
-     * Copy the board to test operations on such as checking if tiles are swappable
-     *
-     * @return a copy deep copy of the board
-     */
-    private Tile[][] copyBoard() {
-        Tile [][] boardCopy = new Tile[HEIGHT][];
-        for(int k = 0; k < WIDTH; k++)
-        {
-            Tile[] boardRow = board[k];
-            boardCopy[k] = new Tile[WIDTH];
-            System.arraycopy(boardRow, 0, boardCopy[k], 0, WIDTH);
-        }
-        return boardCopy;
     }
 
     /**
@@ -116,10 +114,10 @@ public class GameLogic extends Observable{
      */
     private void swap(Tuple t1, Tuple t2) {
         int x1 = t1.getX(), x2 = t2.getX(), y1 = t1.getY(), y2 = t2.getY();
-        Tile swap1 = board[y1][x1];
-        Tile swap2 = board[y2][x2];
-        board[y1][x1] = swap2;
-        board[y2][x2] = swap1;
+        Tile swap1 = BOARD.getTile(x1, y1);
+        Tile swap2 = BOARD.getTile(x2, y2);
+        BOARD.setTile(x1, y1, swap2);
+        BOARD.setTile(x2, y2, swap1);
 
         if (areSpecialTiles(t1, t2)) {
             Set<Tuple> toRemove = tilesToRemove(t1, new HashSet<>());
@@ -133,15 +131,6 @@ public class GameLogic extends Observable{
 
     }
 
-    private Random rnd = new Random();
-
-    /**
-     * @return new random colour
-     */
-    private TileColor getRandomColour(){
-        return TileColor.colourList.get(rnd.nextInt(6));
-    }
-
     /**
      *
      * @param a a tile coordinate
@@ -151,8 +140,8 @@ public class GameLogic extends Observable{
     private boolean areSameColours(Tuple a, Tuple b) {
         int aX = a.getX(), aY = a.getY(), bX = b.getX(), bY = b.getY();
 
-        Tile tileA = board[aY][aX];
-        Tile tileB = board[bY][bX];
+        Tile tileA = BOARD.getTile(aX, aY);
+        Tile tileB = BOARD.getTile(bX, bY);
 
         return tileA.getCOLOR() == tileB.getCOLOR();
     }
@@ -166,47 +155,10 @@ public class GameLogic extends Observable{
     private boolean areSpecialTiles(Tuple a, Tuple b) {
         int aX = a.getX(), aY = a.getY(), bX = b.getX(), bY = b.getY();
 
-        Tile tileA = board[aY][aX];
-        Tile tileB = board[bY][bX];
+        Tile tileA = BOARD.getTile(aX, aY);
+        Tile tileB = BOARD.getTile(bX, bY);
 
         return tileA.getTYPE() != TileType.SIMPLE && tileA.getTYPE() == tileB.getTYPE();
-    }
-
-    /**
-     * @param exclude which colours to exclude from new random colour
-     * @return new random colour
-     */
-    private TileColor getRandomColourExcluding(Set<TileColor> exclude) {
-        TileColor random;
-        do
-            random = getRandomColour();
-        while (exclude.contains(random));
-        return random;
-    }
-
-    /**
-     * Prints the board for debugging purposes
-     */
-    private void printBoard(){
-        printBoard(this.board);
-    }
-
-    /**
-     * Prints a particular board for debugging purposes
-     * @param board a board to print
-     */
-    private void printBoard(Tile[][] board){
-        for (Tile[] aBoard : board) {
-            for (int j = 0; j < board[0].length; j++) {
-                if (aBoard[j] == null) {
-                    System.out.print("NUL | ");
-                } else {
-                    System.out.print(aBoard[j].getCOLOR().toString() + " | ");
-                }
-
-            }
-            System.out.println();
-        }
     }
 
     /**
@@ -223,7 +175,7 @@ public class GameLogic extends Observable{
 
         int aX = a.getX(), aY = a.getY(), bX = b.getX(), bY = b.getY();
 
-        Tile[][] boardCopy = copyBoard();
+        Tile[][] boardCopy = BOARD.getBoardCopy();
         Tile tmp = boardCopy[aY][aX];
         boardCopy[aY][aX] = boardCopy[bY][bX];
         boardCopy[bY][bX] = tmp;
@@ -253,7 +205,7 @@ public class GameLogic extends Observable{
      * @return the coordinates of tiles to be removed in a column X
      */
     private Set<Tuple> columnGroups(final int X) {
-        return columnGroups(this.board, X);
+        return columnGroups(BOARD.getBoardCopy(), X);
     }
 
     /**
@@ -291,7 +243,7 @@ public class GameLogic extends Observable{
      * @return the coordinates of tiles to be removed in a row Y
      */
     private Set<Tuple> rowGroups(final int Y) {
-        return rowGroups(this.board, Y);
+        return rowGroups(BOARD.getBoardCopy(), Y);
     }
 
     /**
@@ -360,7 +312,7 @@ public class GameLogic extends Observable{
 
     /**
      * @param t tile coordinate
-     * @return true if coordinate falls within board dimensions
+     * @return true if coordinate falls within BOARD dimensions
      */
     private boolean checkLimits(Tuple t) {
         int x = t.getX(), y = t.getY();
@@ -368,7 +320,7 @@ public class GameLogic extends Observable{
     }
 
     /**
-     * removes all tiles from the removable set from the board
+     * removes all tiles from the removable set from the BOARD
      * @param removable set of tile coordinates
      */
     private void remove(Set<Tuple> removable){
@@ -378,7 +330,7 @@ public class GameLogic extends Observable{
             e.printStackTrace();
         }
         for (Tuple t : removable){
-            board[t.getY()][t.getX()] = null;
+            BOARD.setTile(t.getX(), t.getY(), null);
         }
     }
 
@@ -386,22 +338,19 @@ public class GameLogic extends Observable{
      * slide down all tiles to fill in empty spaces beneath them
      */
     private void slideDown(){
-        int row = board.length;
-        int column = board[0].length;
         int count;
         ArrayList<Tile> temp = new ArrayList<>();
-        for (int i=0;i < column;i++){
-            for (Tile[] aBoard : board) {
-                if (aBoard[i] != null) {
-                    temp.add(aBoard[i]);
-                }
+        for (int i = 0; i < BOARD.getWIDTH(); i++){
+            for (int j = 0; j < BOARD.getHEIGHT(); j++) {
+                if (BOARD.getTile(i, j) != null)
+                    temp.add(BOARD.getTile(i, j));
             }
             count = temp.size() - 1;
-            for(int k=row-1; k >= 0; k--){
+            for(int k = BOARD.getHEIGHT()-1; k >= 0; k--){
                 if (count < 0){
-                    board[k][i] = null;
+                    BOARD.setTile(i, k, null);
                 }else {
-                    board[k][i] = temp.get(count);
+                    BOARD.setTile(i, k, temp.get(count));
                     count--;
                 }
             }
@@ -410,13 +359,13 @@ public class GameLogic extends Observable{
     }
 
     /**
-     * Fills null tiles in the board with new random tiles
+     * Fills null tiles in the BOARD with new random tiles
      */
     private void fillNull(){
-        for(int i=0;i < board[0].length;i++){
-            for (int j=0; j < board.length;j++){
-                if (board[j][i] == null){
-                    board[j][i] = tileFactory.createTile(getRandomColour());
+        for(int i = 0; i < BOARD.getWIDTH(); i++){
+            for (int j = 0; j < BOARD.getHEIGHT(); j++){
+                if (BOARD.getTile(i, j) == null){
+                    BOARD.setTile(i, j, tileFactory.createTile(getRandomColour()));
                 }else {
                     break;
                 }
@@ -491,7 +440,7 @@ public class GameLogic extends Observable{
         }
         int y = location.getY();
         int x = location.getX();
-        Tile tile = board[y][x];
+        Tile tile = BOARD.getTile(x, y);
         switch (tile.getTYPE()) {
             case SIMPLE:
                 toRemove.add(location);
@@ -513,7 +462,7 @@ public class GameLogic extends Observable{
     }
 
     /**
-     * Clears all groups in the board until no more groups exist
+     * Clears all groups in the BOARD until no more groups exist
      */
     private void clearGroups(){
         Set<Tuple> toRemove = new HashSet<>();

@@ -15,9 +15,15 @@ public class GamePanel extends JPanel {
 
     public GamePanel(Color background,Font title) {
         setBounds(XCORD,YCORD,WIDTH,HEIGHT);
-        setLayout(null);
+        setLayout(new FlowLayout(10, 10, 10));
         setBackground(background);
         setFont(title);
+    }
+
+    @Override
+    public void paintComponents(Graphics g) {
+        System.out.println("paint");
+        super.paintComponents(g);
     }
 
     public Integer getXCORD() {

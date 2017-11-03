@@ -21,4 +21,17 @@ public enum TileColor {
     }
 
     public static List<TileColor> colourList = new ArrayList<>(Arrays.asList(RED, PINK, GREEN, BLUE, PURPLE, YELLOW));
+
+    public static TileColor getRandomColour() {
+        Random rnd = new Random();
+        return colourList.get(rnd.nextInt(6));
+    }
+
+    public static TileColor getRandomColourExcluding(Set<TileColor> exclude) {
+        TileColor random;
+        do
+            random = getRandomColour();
+        while (exclude.contains(random));
+        return random;
+    }
 }

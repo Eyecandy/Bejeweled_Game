@@ -1,8 +1,8 @@
 package states;
 
+import panels.Board;
 import panels.GameBoard;
 import panels.GamePanel;
-import tiles.Tile;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +17,7 @@ public class Level1State extends GameState {
     private Font titleFont = new Font("Script",Font.BOLD,23);
     private Color titleColor = Color.BLACK;
     public GameBoard board;
+    private Board boardModel;
     private final String title = "LEVEL 1";
 
     private final int SIZE = 8;
@@ -25,15 +26,18 @@ public class Level1State extends GameState {
     public void init() {
 
         gamePanel = new GamePanel(background,titleFont);
-        GameLogic gl = new GameLogic(SIZE,SIZE);
+
+        boardModel = new Board(SIZE, SIZE, DIMENSION/SIZE);
+        GameLogic gl = new GameLogic(SIZE,SIZE, boardModel);
 
         BoardObserver boardObserver = new BoardObserver(this,gl);
         gl.addObserver(boardObserver);
-        board = new GameBoard(gl, SIZE, DIMENSION, this);
+        board = new GameBoard(gl, SIZE, DIMENSION, boardModel);
 
-        Tile mat[][] = gl.getBoard();
         gamePanel.add(board);
-        board.render(mat);
+        gamePanel.setVisible(true);
+        //board.paintComponents(board.getGraphics());
+        //board.setVisible(true);
     }
     public void update() {
         System.out.println("update");

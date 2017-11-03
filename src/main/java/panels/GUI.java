@@ -22,16 +22,24 @@ public class GUI extends JFrame {
     private GUI() {
         setTitle("Bejeweled");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setBounds(XCORD_FRAME, YCORD_FRAME, WIDTH_FRAME, HEIGHT_FRAME);
+        //setBounds(XCORD_FRAME, YCORD_FRAME, WIDTH_FRAME, HEIGHT_FRAME);
         setPreferredSize(new Dimension(1000,1000));
+        setMinimumSize(new Dimension(1000,1000));
+        setMaximumSize(new Dimension(1000,1000));
+        this.setContentPane(new JPanel(new BorderLayout()));
     }
 
     public void setjPanel(JPanel jPanel) {
+        this.getContentPane().removeAll();
         this.jPanel = jPanel;
-        setContentPane(jPanel);
-        pack();
-        setVisible(true);
-        repaint();
-        doLayout();
+        this.getContentPane().add(jPanel, BorderLayout.CENTER);
+        //this.setContentPane(jPanel);
+        this.pack();
+        this.setVisible(true);
+        //repaint();
+        //jPanel.repaint();
+        //Graphics g = jPanel.getGraphics();
+        //jPanel.revalidate();
+        //doLayout();
     }
 }
