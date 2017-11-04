@@ -92,13 +92,13 @@ public class GameLogic extends Observable{
         if (previousClick == null)
             previousClick = click;
         else if (isNeighbours(previousClick, click)) {
+            BOARD.clearSelected();
             if (isSwappable(previousClick, click))
                 swap(previousClick, click);
             previousClick = null;
-            BOARD.clearSelected();
         } else {
-            previousClick = click;
             BOARD.popSelected();
+            previousClick = click;
         }
 
         if (isNotPlayable())
@@ -392,7 +392,7 @@ public class GameLogic extends Observable{
         Set<Tuple> toRemove = new HashSet<>();
         for (int x = 0; x < WIDTH; x++) {
             Tuple currentLocation = new Tuple(x, Y);
-            toRemove.add(currentLocation);
+            //toRemove.add(currentLocation);
             removed.addAll(toRemove);
             if (!removed.contains(currentLocation))
                 toRemove.addAll(tilesToRemove(currentLocation, removed));
@@ -404,7 +404,7 @@ public class GameLogic extends Observable{
         Set<Tuple> toRemove = new HashSet<>();
         for (int y = 0; y < HEIGHT; y++) {
             Tuple currentLocation = new Tuple(X, y);
-            toRemove.add(currentLocation);
+            //toRemove.add(currentLocation);
             removed.addAll(toRemove);
             if (!removed.contains(currentLocation))
                 toRemove.addAll(tilesToRemove(currentLocation, removed));
@@ -420,7 +420,7 @@ public class GameLogic extends Observable{
             for (int j = x - 1; j <= x + 1; j++) {
                 Tuple currentLocation = new Tuple(j, i);
                 if (checkLimits(currentLocation)) {
-                    toRemove.add(currentLocation);
+                    //toRemove.add(currentLocation);
                     removed.addAll(toRemove);
                     if (!removed.contains(currentLocation))
                         toRemove.addAll(tilesToRemove(currentLocation, removed));

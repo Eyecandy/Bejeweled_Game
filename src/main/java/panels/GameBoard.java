@@ -5,17 +5,17 @@ import states.GameLogic;
 import tiles.Tuple;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class GameBoard extends JPanel implements MouseListener{
     private Map<JLabel, Tuple> labelToCord = new HashMap<>();
-    private Map<Tuple, JLabel> cordToLabel = new HashMap<>();
     private Set<JLabel> jLabelsClicked = new HashSet<>();
     private final GameLogic gl;
     private final Board board;
@@ -37,16 +37,16 @@ public class GameBoard extends JPanel implements MouseListener{
         this.setLayout(new GridLayout(BOARD_SIZE, BOARD_SIZE));
         this.addMouseListener(this);
         eventBus = EventBus.getInstance();
-        eventBus.attachGameBoard(board);
+        eventBus.attachGameBoard(this);
 
 
         this.board = board;
         setDoubleBuffered(true);
-        Timer timer = new Timer(100, e -> {
-//            revalidate();
-//            repaint();
-            board.paintBoard(this.getGraphics());
-//                paintComponents(getGraphics());
+        Timer timer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                board.paintBoard(GameBoard.this.getGraphics());
+            }
         });
         //timer.setRepeats(true);
         timer.setCoalesce(true);
@@ -68,9 +68,7 @@ public class GameBoard extends JPanel implements MouseListener{
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) {
-
-    }
+    public void mouseClicked(MouseEvent e) {}
 
     @Override
     public void mousePressed(MouseEvent e) {
@@ -82,50 +80,45 @@ public class GameBoard extends JPanel implements MouseListener{
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
+    public void mouseReleased(MouseEvent e) { }
 
     @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
+    public void mouseEntered(MouseEvent e) { }
 
     @Override
-    public void mouseExited(MouseEvent e) {
+    public void mouseExited(MouseEvent e) { }
 
-    }
-
-    private void jLabel1MouseEntered(JLabel jLabel1)
-    {
-        jLabel1.setOpaque(true);
-        jLabel1.setBackground(Color.GRAY);
-    }
-
-    private void jLabel1MouseExited(JLabel jLabel1)
-    {
-        jLabel1.setOpaque(false);
-        jLabel1.setBackground(Color.WHITE);
-    }
-    private void jLabel1MouseClicked(JLabel jLabel1)
-    {
-        jLabel1.setOpaque(true);
-        jLabel1.setBackground(Color.BLACK);
+    public void destroyTiles(Set<Tuple> toRemove) {
+        float scale = 1.0f;
+        while (scale > 0.f) {
+            DestroyTiles destroyTiles = new DestroyTiles(toRemove, scale);
+            destroyTiles.run();
+            try {
+                destroyTiles.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+            scale -= 0.15f;
+        }
+        System.out.println("DoneAnimate");
     }
 
-    public Map<Tuple, JLabel> getCordToLabel() {
-        return cordToLabel;
+    class DestroyTiles extends SwingWorker<Object,Object> {
+        Set<Tuple> toRemove;
+        final float SIZE;
+        public DestroyTiles(Set<Tuple> toRemove, float size) {
+            this.toRemove = toRemove;
+            SIZE = size;
+        }
+
+        @Override
+        protected Object doInBackground() throws Exception {
+            for (Tuple t : toRemove) {
+                board.setTileScale(t.getX(), t.getY(), SIZE);
+            }
+            board.paintBoard(GameBoard.this.getGraphics());
+            return null;
+        }
     }
 
-    public void setCordToLabel(Map<Tuple, JLabel> cordToLabel) {
-        this.cordToLabel = cordToLabel;
-    }
-
-    public EventBus getEventBus() {
-        return eventBus;
-    }
-
-    public int getOFFSET() {
-        return OFFSET;
-    }
 }
