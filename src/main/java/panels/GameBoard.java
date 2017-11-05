@@ -1,165 +1,124 @@
 package panels;
 
+import Events.EventBus;
 import states.GameLogic;
-import tiles.Tile;
 import tiles.Tuple;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.awt.event.MouseListener;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
-public class GameBoard extends JPanel {
+public class GameBoard extends JPanel implements MouseListener{
     private Map<JLabel, Tuple> labelToCord = new HashMap<>();
     private Set<JLabel> jLabelsClicked = new HashSet<>();
     private final GameLogic gl;
-    public GameBoard(GameLogic gl) {
+    private final Board board;
+    private final int BOARD_SIZE;
+    private final int BOARD_DIMENSION;
+    private final int OFFSET;
+    private EventBus eventBus;
+    public GameBoard(GameLogic gl, int size, int dimensions, Board board) {
         this.gl = gl;
-        this.setLayout(null);
-    }
-    private int width = 0;
-    private int height = 0;
-    private int offset = 50;
-    private int boardWidth = 0;
+        BOARD_SIZE = size;
+        BOARD_DIMENSION = dimensions;
+        OFFSET = BOARD_DIMENSION/BOARD_SIZE;
+        this.setMaximumSize(new Dimension(BOARD_DIMENSION, BOARD_DIMENSION));
+        this.setPreferredSize(new Dimension(BOARD_DIMENSION, BOARD_DIMENSION));
+        this.setMinimumSize(new Dimension(BOARD_DIMENSION, BOARD_DIMENSION));
+        this.setMaximumSize(new Dimension(BOARD_DIMENSION, BOARD_DIMENSION));
+        this.setBackground(Color.LIGHT_GRAY);
+        this.setBounds(200, 150, BOARD_DIMENSION, BOARD_DIMENSION);
+        this.setLayout(new GridLayout(BOARD_SIZE, BOARD_SIZE));
+        this.addMouseListener(this);
+        eventBus = EventBus.getInstance();
+        eventBus.attachGameBoard(this);
 
-    public void render(Tile[][] matrix) {
-        System.out.println(boardWidth);
-        render(matrix, boardWidth);
-    }
-    public void render(Tile[][] matrix, int width) {
-        for (Component component : this.getComponents()) {
-            this.remove(component);
-        }
-        boardWidth = width;
-        height = matrix.length;
-        this.width = matrix[0].length;
-        offset = width/this.width;
-        System.out.println(width);
-        System.out.println(this.width);
-        System.out.println(offset);
 
-        for (int i = 0; i < height; ++i) {
-            for (int j = 0; j < this.width; j++) {
-                JLabel label = new JLabel(Integer.toString(i + j*height));
-                label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-                ImageIcon img = getTileIcon(matrix[i][j], offset);
-                if (img != null) {
-                    label.setIcon(img);
-                }
-                Tuple cord = new Tuple(j,i);
-                labelToCord.put(label,cord);
-                label.setBounds(j*offset, i*offset, offset, offset);
-                label.addMouseListener(new MouseAdapter() {
-                    public void mouseEntered(MouseEvent e) {
-                        if (!jLabelsClicked.contains(label)) {
-                            jLabel1MouseEntered(label);
-                        }
-                    }
-                    public void mouseExited(MouseEvent e) {
-                        if (!jLabelsClicked.contains(label)) {
-                            jLabel1MouseExited(label);
-                        }
-                    }
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        jLabelsClicked.add(label);
-
-                        jLabel1MouseClicked(label);
-                        if (jLabelsClicked.size() == 2) {
-                            jLabel1MouseExited(label);
-
-                        }
-                        Tuple cord = labelToCord.get(e.getComponent());
-                        gl.toClick(cord.getX(),cord.getY());
-                        super.mouseClicked(e);
-                    }
-                    public void mouseReleased(MouseEvent e) {
-                        if (jLabelsClicked.size() == 1) {
-                            jLabel1MouseExited(label);
-                            for( JLabel label1:jLabelsClicked) {
-                                 label1.setOpaque(false);
-                                 label1.setBackground(Color.WHITE);
-
-                            }
-                            jLabelsClicked = new HashSet<>();
-
-                        }
-
-                        }
-
-                });
-
-                this.add(label);
+        this.board = board;
+        setDoubleBuffered(true);
+        Timer timer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                board.paintBoard(GameBoard.this.getGraphics());
             }
-        }
+        });
+        //timer.setRepeats(true);
+        timer.setCoalesce(true);
+        timer.start();
     }
 
-    private ImageIcon getTileIcon(Tile tile, int size) {
-        Image img = null;
-        String iconName = "/gem-";
-        String iconSuffix = ".png";
-        switch (tile.getCOLOR()){
-            case RED:
-                iconName += "Red";
-                break;
-            case BLUE:
-                iconName += "Blue";
-                break;
-            case PINK:
-                iconName += "Pink";
-                break;
-            case GREEN:
-                iconName += "Green";
-                break;
-            case PURPLE:
-                iconName += "Purple";
-                break;
-            case YELLOW:
-                iconName += "Yellow";
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        board.paintBoard(g);
+    }
+
+    @Override
+    public void paintComponents(Graphics g) {
+        System.out.println("paint component");
+        super.paintComponents(g);
+        board.paintBoard(g);
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {}
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        int col = e.getX()/OFFSET;
+        int row = e.getY()/OFFSET;
+        System.out.println(col + ", " + row + " -> press");
+        gl.toClick(col, row);
+//        this.repaint();
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) { }
+
+    @Override
+    public void mouseEntered(MouseEvent e) { }
+
+    @Override
+    public void mouseExited(MouseEvent e) { }
+
+    public void destroyTiles(Set<Tuple> toRemove) {
+        float scale = 1.0f;
+        while (scale > 0.f) {
+            DestroyTiles destroyTiles = new DestroyTiles(toRemove, scale);
+            destroyTiles.run();
+            try {
+                destroyTiles.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+            scale -= 0.15f;
         }
-        switch (tile.getTYPE()) {
-            case SIMPLE:
-                iconName += iconSuffix;
-                break;
-            case BOMB:
-                iconName += "-Bomb" + iconSuffix;
-                break;
-            case BOMB_VERTICAL:
-                iconName += "-Vert" + iconSuffix;
-                break;
-            case BOMB_HORIZONTAL:
-                iconName += "-Horz" + iconSuffix;
+        System.out.println("DoneAnimate");
+    }
+
+    class DestroyTiles extends SwingWorker<Object,Object> {
+        Set<Tuple> toRemove;
+        final float SIZE;
+        public DestroyTiles(Set<Tuple> toRemove, float size) {
+            this.toRemove = toRemove;
+            SIZE = size;
         }
-        try {
-            img = ImageIO.read(getClass().getResource(iconName));
-        } catch (IOException e) {
+
+        @Override
+        protected Object doInBackground() throws Exception {
+            for (Tuple t : toRemove) {
+                board.setTileScale(t.getX(), t.getY(), SIZE);
+            }
+            board.paintBoard(GameBoard.this.getGraphics());
             return null;
         }
-        return new ImageIcon(img.getScaledInstance(size,size,0));
-    }
-
-    private void jLabel1MouseEntered(JLabel jLabel1)
-    {
-        jLabel1.setOpaque(true);
-        jLabel1.setBackground(Color.GRAY);
-    }
-
-    private void jLabel1MouseExited(JLabel jLabel1)
-    {
-        jLabel1.setOpaque(false);
-        jLabel1.setBackground(Color.WHITE);
-    }
-    private void jLabel1MouseClicked(JLabel jLabel1)
-    {
-        jLabel1.setOpaque(true);
-        jLabel1.setBackground(Color.BLACK);
     }
 
 }

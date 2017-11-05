@@ -50,8 +50,8 @@ public class StartingMenuState extends GameState {
         int deduct = 100;
         for (int i =0;i < options.length;i++) {
             JLabel optionLabel = createJlabel(options[i],normalFont,normalColor);
-            optionLabel.setBounds(xCord,yCord+deduct,width*3,height);
-            deduct += 60;
+            //optionLabel.setBounds(xCord,yCord+deduct,width*3,height);
+            //deduct += 60;
             gamePanel.add(optionLabel);
             optionsLabels[i] = optionLabel;
         }
@@ -101,7 +101,7 @@ public class StartingMenuState extends GameState {
 
 
 
-    public JPanel getJpanel() {
+    public JPanel getJPanel() {
         return gamePanel;
     }
 

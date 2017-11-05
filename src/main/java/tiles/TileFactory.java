@@ -12,11 +12,11 @@ public class TileFactory {
 
     public Tile createTile(TileColor colour) {
         Double rng = random.nextDouble();
-        if (rng > 0.975)
+        if (rng > 0.98)
             return new BombHorizontalTile(colour);
-        else if (rng > 0.95)
+        else if (rng > 0.96)
             return new BombVerticalTile(colour);
-        else if (rng > 0.90)
+        else if (rng > 0.92)
             return new BombTile(colour);
         else
             return new SimpleTile(colour);
