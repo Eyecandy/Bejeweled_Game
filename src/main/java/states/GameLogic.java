@@ -3,6 +3,8 @@ package states;
 import Events.DestroyEvent;
 import Events.EventBus;
 import panels.Board;
+import strategy.Strategist;
+import strategy.TileRemovalStrategy;
 import tiles.*;
 
 import java.util.ArrayList;
@@ -16,11 +18,25 @@ import static tiles.TileColor.getRandomColourExcluding;
 public class GameLogic extends Observable{
 
     private final Board BOARD;
+
+
+
     private final int WIDTH;
+
+
+
     private final int HEIGHT;
     private Tuple previousClick = null;
     private TileFactory tileFactory;
     private EventBus eventBus;
+    private Strategist strategist = new Strategist(this);
+    public int getHEIGHT() {
+        return HEIGHT;
+    }
+    public int getWIDTH() {
+        return WIDTH;
+    }
+
 
     GameLogic(int rows, int columns, Board BOARD) {
         super();
@@ -30,9 +46,9 @@ public class GameLogic extends Observable{
         this.eventBus = EventBus.getInstance();
         this.BOARD = BOARD;
 
-
         InitialiseBoard(this.WIDTH, this.HEIGHT);
     }
+
 
     private void InitialiseBoard(final int WIDTH, final int HEIGHT) {
         Tile[][] tmpBoard = new Tile[HEIGHT][WIDTH];
@@ -388,77 +404,13 @@ public class GameLogic extends Observable{
         return true;
     }
 
-    private Set<Tuple> clearRow(final int Y, Set<Tuple> removed) {
-        Set<Tuple> toRemove = new HashSet<>();
-        for (int x = 0; x < WIDTH; x++) {
-            Tuple currentLocation = new Tuple(x, Y);
-            //toRemove.add(currentLocation);
-            removed.addAll(toRemove);
-            if (!removed.contains(currentLocation))
-                toRemove.addAll(tilesToRemove(currentLocation, removed));
-        }
-        return toRemove;
-    }
 
-    private Set<Tuple> clearColumn(final int X, Set<Tuple> removed) {
-        Set<Tuple> toRemove = new HashSet<>();
-        for (int y = 0; y < HEIGHT; y++) {
-            Tuple currentLocation = new Tuple(X, y);
-            //toRemove.add(currentLocation);
-            removed.addAll(toRemove);
-            if (!removed.contains(currentLocation))
-                toRemove.addAll(tilesToRemove(currentLocation, removed));
-        }
-        return toRemove;
-    }
-
-    private Set<Tuple> clearArea(Tuple location, Set<Tuple> removed) {
-        Set<Tuple> toRemove = new HashSet<>();
-        int y = location.getY();
-        int x = location.getX();
-        for (int i = y - 1; i <= y + 1; i++) {
-            for (int j = x - 1; j <= x + 1; j++) {
-                Tuple currentLocation = new Tuple(j, i);
-                if (checkLimits(currentLocation)) {
-                    //toRemove.add(currentLocation);
-                    removed.addAll(toRemove);
-                    if (!removed.contains(currentLocation))
-                        toRemove.addAll(tilesToRemove(currentLocation, removed));
-                }
-            }
-        }
-        return toRemove;
-    }
-
-    private Set<Tuple> tilesToRemove(Tuple location, Set<Tuple> removed) {
-        Set<Tuple> toRemove = new HashSet<>();
-        //removed.removeIf(removed::contains);
-        //removed.removeIf(removed::contains);
-        if (removed.contains(location)) {
-            toRemove.add(location);
-            return toRemove;
-        }
+    public Set<Tuple> tilesToRemove(Tuple location, Set<Tuple> removed) {
         int y = location.getY();
         int x = location.getX();
         Tile tile = BOARD.getTile(x, y);
-        switch (tile.getTYPE()) {
-            case SIMPLE:
-                toRemove.add(location);
-                break;
-            case BOMB:
-                removed.add(location);
-                toRemove.addAll(clearArea(location, removed));
-                break;
-            case BOMB_HORIZONTAL:
-                removed.add(location);
-                toRemove.addAll(clearRow(y, removed));
-                break;
-            case BOMB_VERTICAL:
-                removed.add(location);
-                toRemove.addAll(clearColumn(x, removed));
-        }
-        toRemove.addAll(removed);
-        return toRemove;
+        TileRemovalStrategy strategy = strategist.findStrat(tile,location,removed,this);
+        return strategy.execute();
     }
 
     /**

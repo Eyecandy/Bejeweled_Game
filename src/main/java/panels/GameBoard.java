@@ -39,7 +39,6 @@ public class GameBoard extends JPanel implements MouseListener{
         eventBus = EventBus.getInstance();
         eventBus.attachGameBoard(this);
 
-
         this.board = board;
         setDoubleBuffered(true);
         Timer timer = new Timer(100, new ActionListener() {
@@ -53,6 +52,8 @@ public class GameBoard extends JPanel implements MouseListener{
         timer.start();
     }
 
+
+
     @Override
     public void paint(Graphics g) {
         super.paint(g);
@@ -64,7 +65,6 @@ public class GameBoard extends JPanel implements MouseListener{
         System.out.println("paint component");
         super.paintComponents(g);
         board.paintBoard(g);
-
     }
 
     @Override
@@ -78,7 +78,6 @@ public class GameBoard extends JPanel implements MouseListener{
         gl.toClick(col, row);
 //        this.repaint();
     }
-
     @Override
     public void mouseReleased(MouseEvent e) { }
 
